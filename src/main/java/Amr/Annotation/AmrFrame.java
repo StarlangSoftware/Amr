@@ -399,13 +399,49 @@ public class AmrFrame extends JFrame implements ActionListener {
         }
     }
 
-    public static void prepareData(String fileName) throws FileNotFoundException {
+    private void saveAmr(ArrayList<String> items, String fileName){
         int startX = 750, startY = 100;
         String[] lastParent = new String[10];
         int[] lastX = new int[10];
         int[] childCount = new int[10];
-        PrintWriter output = null;
         HashSet<String> words = new HashSet<>();
+        try {
+            PrintWriter output = new PrintWriter(fileName);
+            output.println("<Amr>");
+            String line = items.get(0);
+            output.println("<Word name=\"" + line + "\" positionX=\"" + startX + "\" positionY=\"" + startY + "\"/>");
+            words.add(line);
+            lastParent[0] = line;
+            childCount[0] = 0;
+            lastX[0] = startX;
+            for (int j = 1; j < items.size(); j++){
+                line = items.get(j);
+                int tabCount = 0, i = 0;
+                while (line.charAt(i) == '\t'){
+                    tabCount++;
+                    i++;
+                }
+                line = line.substring(tabCount);
+                lastParent[tabCount] = line;
+                childCount[tabCount] = 0;
+                lastX[tabCount] = lastX[tabCount - 1] + (childCount[tabCount - 1] - 1) * 100;
+                if (!words.contains(line)){
+                    output.println("<Word name=\"" + line + "\" positionX=\"" + lastX[tabCount] + "\" positionY=\"" + (startY + 100 * tabCount) + "\"/>");
+                    words.add(line);
+                }
+                output.println("<Connection from=\"" + lastParent[tabCount - 1] + "\" to=\"" + line + "\"/>");
+                childCount[tabCount - 1]++;
+            }
+            output.println("</Amr>");
+            output.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void prepareData(String fileName) throws FileNotFoundException {
+        ArrayList<String> lines = new ArrayList<>();
+        String outputFileName = null;
         boolean firstLine = false, skipFile = false;
         Scanner input = new Scanner(new File(fileName));
         while (input.hasNext()){
@@ -420,51 +456,31 @@ public class AmrFrame extends JFrame implements ActionListener {
                     }
                     line = line.substring(line.indexOf("/") + 1);
                 }
-                output = new PrintWriter(folder + "/" + line);
-                words = new HashSet<>();
+                outputFileName = folder + "/" + line;
                 firstLine = true;
                 skipFile = false;
+                lines = new ArrayList<>();
             } else {
                 if (line.isEmpty()){
                     if (!skipFile){
-                        output.println("</Amr>");
+                        saveAmr(lines, outputFileName);
                     }
-                    output.close();
                 } else {
                     if (firstLine){
                         if (line.startsWith("\t")){
                             skipFile = true;
                         } else {
-                            output.println("<Amr>");
-                            words.add(line);
-                            output.println("<Word name=\"" + line + "\" positionX=\"" + startX + "\" positionY=\"" + startY + "\"/>");
-                            lastParent[0] = line;
-                            childCount[0] = 0;
-                            lastX[0] = startX;
+                            lines.add(line);
                         }
                         firstLine = false;
                     } else {
                         if (!skipFile){
-                            int tabCount = 0, i = 0;
-                            while (line.charAt(i) == '\t'){
-                                tabCount++;
-                                i++;
-                            }
-                            line = line.substring(tabCount);
-                            lastParent[tabCount] = line;
-                            childCount[tabCount] = 0;
-                            lastX[tabCount] = lastX[tabCount - 1] + (childCount[tabCount - 1] - 1) * 100;
-                            if (!words.contains(line)){
-                                output.println("<Word name=\"" + line + "\" positionX=\"" + lastX[tabCount] + "\" positionY=\"" + (startY + 100 * tabCount) + "\"/>");
-                                words.add(line);
-                            }
-                            output.println("<Connection from=\"" + lastParent[tabCount - 1] + "\" to=\"" + line + "\"/>");
-                            childCount[tabCount - 1]++;
+                            lines.add(line);
                         }
                     }
                 }
             }
         }
-        output.close();
+        saveAmr(lines, outputFileName);
     }
 }
