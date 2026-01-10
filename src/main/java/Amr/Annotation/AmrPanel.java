@@ -9,6 +9,7 @@ public class AmrPanel extends DiagramPanel {
     public AmrPanel(String path, String fileName) {
         super();
         diagram = new AmrDiagram(path, fileName);
+        this.filename = diagram.getFileName();
         addMouseListener(this);
         addMouseMotionListener(this);
     }
@@ -47,7 +48,7 @@ public class AmrPanel extends DiagramPanel {
         if (lastCommand == EnumCommand.EMPTY && e.getClickCount() == 2) {
             AmrObject current = diagram.getAmrObjectAtPos(e.getPoint());
             if (current instanceof AmrWordObject) {
-                String word = JOptionPane.showInputDialog(null, "Enter Word Name", "Amr Editor", JOptionPane.QUESTION_MESSAGE);
+                String word = JOptionPane.showInputDialog(null, "Enter Word Name", ((AmrWordObject) current).name);
                 if (word != null) {
                     save();
                     ((AmrWordObject) current).setName(word);

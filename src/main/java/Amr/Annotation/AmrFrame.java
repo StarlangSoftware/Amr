@@ -1,5 +1,6 @@
 package Amr.Annotation;
 
+import AnnotatedSentence.AnnotatedSentence;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -18,8 +19,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Scanner;
 
 public class AmrFrame extends JFrame implements ActionListener {
@@ -37,6 +40,16 @@ public class AmrFrame extends JFrame implements ActionListener {
     static final private String CONNECTION = "connection";
     static final private String FORWARD = "forward";
     static final private String BACKWARD = "backward";
+    static final private String FASTFORWARD = "fastforward";
+    static final private String FASTBACKWARD = "fastbackward";
+    static final private String FASTFASTFORWARD = "fastfastforward";
+    static final private String FASTFASTBACKWARD = "fastfastbackward";
+    String amrPath;
+    String phrasePath;
+    String subFolder;
+    protected JLabel infoBottom;
+    protected JPanel bottom;
+    private AnnotatedSentence sentence;
 
     private JMenuItem addMenuItem(JMenu menu, String name, KeyStroke stroke) {
         JMenuItem newItem;
@@ -73,10 +86,22 @@ public class AmrFrame extends JFrame implements ActionListener {
         button = makeDrawingButton("connection", CONNECTION, "Add Connection");
         button.setVisible(false);
         toolBar.add(button);
+        button = makeDrawingButton("fastfastbackward", FASTFASTBACKWARD, "Fast Fast Backward");
+        button.setVisible(false);
+        toolBar.add(button);
+        button = makeDrawingButton("fastbackward", FASTBACKWARD, "Fast Backward");
+        button.setVisible(false);
+        toolBar.add(button);
         button = makeDrawingButton("backward", BACKWARD, "Backward");
         button.setVisible(false);
         toolBar.add(button);
         button = makeDrawingButton("forward", FORWARD, "Forward");
+        button.setVisible(false);
+        toolBar.add(button);
+        button = makeDrawingButton("fastforward", FASTFORWARD, "Fast Forward");
+        button.setVisible(false);
+        toolBar.add(button);
+        button = makeDrawingButton("fastfastforward", FASTFASTFORWARD, "Fast Fast Forward");
         button.setVisible(false);
         toolBar.add(button);
     }
@@ -94,6 +119,15 @@ public class AmrFrame extends JFrame implements ActionListener {
         itemSave.setEnabled(false);
         itemExport.setEnabled(false);
         itemPaste.setEnabled(false);
+    }
+
+    private void getAnnotatedSentence(DiagramPanel panel){
+        if (subFolder.equals("true")){
+            sentence = new AnnotatedSentence(new File(phrasePath + "/" + panel.getFolder() + "/" + panel.getFileName()));
+        } else {
+            sentence = new AnnotatedSentence(new File(phrasePath + "/" + panel.getFileName()));
+        }
+        infoBottom.setText(sentence.toWords());
     }
 
     public AmrFrame() {
@@ -128,17 +162,33 @@ public class AmrFrame extends JFrame implements ActionListener {
         addButtons(ToolBar);
         add(ToolBar, BorderLayout.PAGE_START);
         ToolBar.setVisible(true);
+        bottom = new JPanel(new BorderLayout());
+        infoBottom = new JLabel("Cümle Burada Olacak ");
+        infoBottom.setForeground(Color.RED);
+        bottom.add(infoBottom, BorderLayout.SOUTH);
+        add(bottom, BorderLayout.SOUTH);
+        Properties properties1 = new Properties();
+        amrPath = ".";
+        phrasePath = "";
+        subFolder = "false";
+        try {
+            properties1.load(Files.newInputStream(new File("config.properties").toPath()));
+            amrPath = properties1.getProperty("amrPath");
+            phrasePath = properties1.getProperty("phrasePath");
+            subFolder = properties1.getProperty("subFolder");
+        } catch (IOException ignored) {
+        }
         diagramPane.addChangeListener(c -> {
             int i;
             if (diagramPane.getSelectedIndex() != -1) {
                 itemUndo.setEnabled(true);
-                for (i = 0; i < 5; i++) {
+                for (i = 0; i < 9; i++) {
                     ToolBar.getComponent(i).setVisible(true);
                 }
                 itemPaste.setEnabled(true);
                 diagramPane.getSelectedComponent().repaint();
             } else {
-                for (i = 0; i < 5; i++) {
+                for (i = 0; i < 9; i++) {
                     ToolBar.getComponent(i).setVisible(false);
                 }
             }
@@ -258,6 +308,7 @@ public class AmrFrame extends JFrame implements ActionListener {
             final JFileChooser fcinput = new JFileChooser();
             fcinput.setDialogTitle("Select diagram file");
             fcinput.setDialogType(JFileChooser.OPEN_DIALOG);
+            fcinput.setCurrentDirectory(new File(amrPath));
             int returnVal = fcinput.showOpenDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 Node rootNode;
@@ -274,6 +325,7 @@ public class AmrFrame extends JFrame implements ActionListener {
                 newPanel = new AmrPanel(fcinput.getSelectedFile().getParent(), fcinput.getSelectedFile().getName());
                 diagramPane.add(newPanel, fcinput.getSelectedFile().getName(), diagramPane.getSelectedIndex() + 1);
                 newPanel.getDiagram().loadFromXml(rootNode);
+                getAnnotatedSentence(newPanel);
                 enableMenu();
             }
         });
@@ -287,7 +339,7 @@ public class AmrFrame extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         DiagramPanel current;
         String cmd = e.getActionCommand();
-        EnumCommand lastCommand = EnumCommand.EMPTY;
+        EnumCommand lastCommand;
         current = (DiagramPanel) diagramPane.getSelectedComponent();
         if (EMPTY.equals(cmd)) {
             lastCommand = EnumCommand.EMPTY;
@@ -303,11 +355,43 @@ public class AmrFrame extends JFrame implements ActionListener {
                 } else {
                     if (FORWARD.equals(cmd)){
                         current.nextAmr(1);
+                        diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
+                        getAnnotatedSentence(current);
                         repaint();
                     } else {
                         if (BACKWARD.equals(cmd)){
                             current.previousAmr(1);
+                            diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
+                            getAnnotatedSentence(current);
                             repaint();
+                        } else {
+                            if (FASTFORWARD.equals(cmd)){
+                                current.nextAmr(10);
+                                diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
+                                getAnnotatedSentence(current);
+                                repaint();
+                            } else {
+                                if (FASTBACKWARD.equals(cmd)){
+                                    current.nextAmr(-10);
+                                    diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
+                                    getAnnotatedSentence(current);
+                                    repaint();
+                                } else {
+                                    if (FASTFASTFORWARD.equals(cmd)){
+                                        current.nextAmr(100);
+                                        diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
+                                        getAnnotatedSentence(current);
+                                        repaint();
+                                    } else {
+                                        if (FASTFASTBACKWARD.equals(cmd)){
+                                            current.nextAmr(-100);
+                                            diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
+                                            getAnnotatedSentence(current);
+                                            repaint();
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -315,7 +399,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         }
     }
 
-    public static void prepareData() throws FileNotFoundException {
+    public static void prepareData(String fileName) throws FileNotFoundException {
         int startX = 750, startY = 100;
         String[] lastParent = new String[10];
         int[] lastX = new int[10];
@@ -323,11 +407,10 @@ public class AmrFrame extends JFrame implements ActionListener {
         PrintWriter output = null;
         HashSet<String> words = new HashSet<>();
         boolean firstLine = false, skipFile = false;
-        Scanner input = new Scanner(new File("framenet.txt"));
+        Scanner input = new Scanner(new File(fileName));
         while (input.hasNext()){
             String line = input.nextLine();
             if (line.matches(".*[0-9]+\\.(train|test|dev)")){
-                System.out.println(line);
                 String folder = ".";
                 if (line.contains("/")){
                     folder = line.substring(0, line.indexOf("/"));

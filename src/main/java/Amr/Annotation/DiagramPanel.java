@@ -19,7 +19,7 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
     private AmrObject previousColored = null;
     private Point fromPoint;
     private Rectangle selectedArea = null;
-    private String filename = null;
+    protected String filename = null;
 
     public DiagramPanel(){
         undoList = new ArrayList<AmrDiagram>();
@@ -42,6 +42,10 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
 
     public String getFileName(){
         return filename;
+    }
+
+    public String getFolder(){
+        return diagram.getFolder();
     }
 
     public void setFileName(String filename){
@@ -122,10 +126,12 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
 
     public void previousAmr(int count){
         diagram.previousAmr(count);
+        filename = diagram.getFileName();
     }
 
     public void nextAmr(int count){
         diagram.nextAmr(count);
+        filename = diagram.getFileName();
     }
 
     protected void paintComponent(Graphics g){

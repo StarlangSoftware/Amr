@@ -31,6 +31,14 @@ public class AmrDiagram {
         return newDiagram;
     }
 
+    public String getFileName(){
+        return fileDescription.getRawFileName();
+    }
+
+    public String getFolder(){
+        return fileDescription.getPath().substring(fileDescription.getPath().lastIndexOf("/"));
+    }
+
     public void addWord(String name, Point position) {
         objects.add(new AmrWordObject(name, position));
     }
