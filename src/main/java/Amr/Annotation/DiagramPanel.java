@@ -64,11 +64,9 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
                 selectedArea = new Rectangle(fromPoint.x, fromPoint.y, Math.abs(toPoint.x - fromPoint.x), Math.abs(toPoint.y - fromPoint.y));
                 diagram.selectArea(selectedArea);
             } else {
-                if (!moved){
-                    save();
-                }
                 moved = true;
                 diagram.moveSelected(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
+                save();
                 fromPoint = toPoint;
             }
             this.repaint();

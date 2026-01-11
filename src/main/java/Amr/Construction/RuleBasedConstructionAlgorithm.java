@@ -5,12 +5,11 @@ import AnnotatedSentence.AnnotatedWord;
 import MorphologicalAnalysis.MorphologicalTag;
 import PropBank.ArgumentList;
 import WordNet.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class RuleBasedConstructionAlgorithm implements AmrConstructionAlgorithm{
-    private WordNet wordNet;
+    private final WordNet wordNet;
     private AnnotatedSentence sentence;
     
     public RuleBasedConstructionAlgorithm(WordNet wordNet){

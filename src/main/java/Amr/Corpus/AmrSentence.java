@@ -8,7 +8,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,8 +36,12 @@ public class AmrSentence extends Sentence {
         loadFromXml(doc.getFirstChild());
     }
 
-    public String getFileName(){
+    public String getRawFileName(){
         return fileDescription.getRawFileName();
+    }
+
+    public String getFileName(){
+        return fileDescription.getFileName();
     }
 
     public String getFolder(){
@@ -90,7 +93,9 @@ public class AmrSentence extends Sentence {
                     if (objectName.equalsIgnoreCase("Connection")) {
                         from = getWord(attributes.getNamedItem("from").getNodeValue());
                         to = getWord(attributes.getNamedItem("to").getNodeValue());
-                        addConnection(from, to);
+                        if (from != null && to != null){
+                            addConnection(from, to);
+                        }
                     }
                 }
             }

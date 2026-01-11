@@ -50,7 +50,7 @@ public class AmrDiagram {
     }
 
     public String getFileName(){
-        return sentence.getFileName();
+        return sentence.getRawFileName();
     }
 
     public String getFolder(){
@@ -81,6 +81,10 @@ public class AmrDiagram {
         } catch (IOException ioException) {
             System.out.println("Output file can not be opened");
         }
+    }
+
+    public void save(){
+        save(sentence.getFileName());
     }
 
     public AmrObject getAmrObjectAtPos(Point p) {

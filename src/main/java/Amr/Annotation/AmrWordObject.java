@@ -1,7 +1,6 @@
 package Amr.Annotation;
 
 import Amr.Corpus.AmrWord;
-
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;

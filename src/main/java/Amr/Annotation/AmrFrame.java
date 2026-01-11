@@ -1,11 +1,6 @@
 package Amr.Annotation;
 
 import AnnotatedSentence.AnnotatedSentence;
-import com.sun.org.apache.xerces.internal.parsers.DOMParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -239,8 +234,8 @@ public class AmrFrame extends JFrame implements ActionListener {
             current = (DiagramPanel) diagramPane.getSelectedComponent();
             if (current != null) {
                 copyList = current.getDiagram().copyAll();
-                current.save();
                 current.getDiagram().deleteSelected();
+                current.save();
                 current.repaint();
             }
         });
@@ -248,8 +243,8 @@ public class AmrFrame extends JFrame implements ActionListener {
             DiagramPanel current;
             current = (DiagramPanel) diagramPane.getSelectedComponent();
             if (current != null) {
-                current.save();
                 current.getDiagram().pasteObjects(copyList);
+                current.save();
                 current.repaint();
             }
         });
@@ -257,8 +252,8 @@ public class AmrFrame extends JFrame implements ActionListener {
             DiagramPanel current;
             current = (DiagramPanel) diagramPane.getSelectedComponent();
             if (current != null) {
-                current.save();
                 current.getDiagram().deleteSelected();
+                current.save();
                 current.repaint();
             }
         });
@@ -304,7 +299,6 @@ public class AmrFrame extends JFrame implements ActionListener {
             }
         });
         itemOpen.addActionListener(e -> {
-            String filename;
             final JFileChooser fcinput = new JFileChooser();
             fcinput.setDialogTitle("Select diagram file");
             fcinput.setDialogType(JFileChooser.OPEN_DIALOG);

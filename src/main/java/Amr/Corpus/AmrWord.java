@@ -1,7 +1,6 @@
 package Amr.Corpus;
 
 import Dictionary.Word;
-
 import java.awt.*;
 
 public class AmrWord extends Word {

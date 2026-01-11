@@ -36,8 +36,8 @@ public class AmrPanel extends DiagramPanel {
         if (lastCommand != null && lastCommand == EnumCommand.CONNECTION && fromObject != null) {
             toObject = diagram.getAmrObjectAtPos(e.getPoint());
             if (toObject != null) {
-                save();
                 diagram.addConnection((AmrWordObject)fromObject, (AmrWordObject)toObject);
+                save();
                 this.repaint();
             }
         }
@@ -50,33 +50,32 @@ public class AmrPanel extends DiagramPanel {
             if (current instanceof AmrWordObject) {
                 String word = JOptionPane.showInputDialog(null, "Enter Word Name", ((AmrWordObject) current).getName());
                 if (word != null) {
-                    save();
                     ((AmrWordObject) current).setName(word);
+                    save();
                     this.repaint();
                 }
             }
         }
         if (lastCommand != null && lastCommand != EnumCommand.EMPTY){
-            switch (lastCommand){
-                case WORD:
-                    String wordName = JOptionPane.showInputDialog(null, "Enter Use Case Name", "UML Editor", JOptionPane.QUESTION_MESSAGE);
-                    if (wordName != null){
-                        diagram.addWord(wordName, e.getPoint());
-                        save();
-                        this.repaint();
-                    }
-                    break;
+            if (lastCommand == EnumCommand.WORD) {
+                String wordName = JOptionPane.showInputDialog(null, "Enter Use Case Name", "UML Editor", JOptionPane.QUESTION_MESSAGE);
+                if (wordName != null) {
+                    diagram.addWord(wordName, e.getPoint());
+                    save();
+                    this.repaint();
+                }
             }
         }
 
     }
 
     public void save() {
+        diagram.save();
         undoList.add(diagram.clone());
     }
 
     public void undo() {
-        if (undoList.size() != 0) {
+        if (!undoList.isEmpty()) {
             diagram = undoList.remove(undoList.size() - 1);
         }
     }
