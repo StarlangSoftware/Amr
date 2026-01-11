@@ -1,0 +1,115 @@
+package Amr.Corpus;
+
+import Corpus.FileDescription;
+import Corpus.Sentence;
+import Dictionary.Word;
+import com.sun.org.apache.xerces.internal.parsers.DOMParser;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class AmrSentence extends Sentence {
+    private ArrayList<AmrConnection> connections;
+    private final FileDescription fileDescription;
+
+    public AmrSentence(String path, String fileName){
+        this(new FileDescription(path, fileName));
+    }
+
+    public AmrSentence(FileDescription fileDescription){
+        this.fileDescription = fileDescription;
+        reload();
+    }
+
+    public void reload(){
+        DOMParser parser = new DOMParser();
+        Document doc;
+        try {
+            parser.parse(fileDescription.getFileName());
+        } catch (SAXException | IOException ignored) {
+        }
+        doc = parser.getDocument();
+        loadFromXml(doc.getFirstChild());
+    }
+
+    public String getFileName(){
+        return fileDescription.getRawFileName();
+    }
+
+    public String getFolder(){
+        return fileDescription.getPath().substring(fileDescription.getPath().lastIndexOf("/"));
+    }
+
+    public FileDescription getFileDescription(){
+        return fileDescription;
+    }
+
+    private AmrWord getWord(String name) {
+        for (Word word : words) {
+            if (word.getName().equals(name)){
+                return (AmrWord) word;
+            }
+        }
+        return null;
+    }
+
+    public AmrConnection getConnection(int index){
+        return connections.get(index);
+    }
+
+    public int connectionCount(){
+        return connections.size();
+    }
+
+    public void addConnection(AmrWord from, AmrWord to){
+        AmrConnection connection = new AmrConnection(from, to);
+        connections.add(connection);
+    }
+
+    private void loadFromXml(Node rootNode) {
+        Node objectNode;
+        NamedNodeMap attributes;
+        String objectName;
+        AmrWord from, to;
+        words.clear();
+        connections = new ArrayList<>();
+        objectNode = rootNode.getFirstChild();
+        while (objectNode != null) {
+            if (objectNode.hasAttributes()) {
+                objectName = objectNode.getNodeName();
+                attributes = objectNode.getAttributes();
+                if (objectName.equalsIgnoreCase("Word")) {
+                    AmrWord word = new AmrWord(attributes.getNamedItem("name").getNodeValue(), new Point(Integer.parseInt(attributes.getNamedItem("positionX").getNodeValue()), Integer.parseInt(attributes.getNamedItem("positionY").getNodeValue())));
+                    addWord(word);
+                } else {
+                    if (objectName.equalsIgnoreCase("Connection")) {
+                        from = getWord(attributes.getNamedItem("from").getNodeValue());
+                        to = getWord(attributes.getNamedItem("to").getNodeValue());
+                        addConnection(from, to);
+                    }
+                }
+            }
+            objectNode = objectNode.getNextSibling();
+        }
+    }
+
+    public void previousSentence(int count){
+        if (fileDescription.previousFileExists(count)){
+            fileDescription.addToIndex(-count);
+            reload();
+        }
+    }
+
+    public void nextSentence(int count){
+        if (fileDescription.nextFileExists(count)){
+            fileDescription.addToIndex(count);
+            reload();
+        }
+    }
+
+}

@@ -311,20 +311,9 @@ public class AmrFrame extends JFrame implements ActionListener {
             fcinput.setCurrentDirectory(new File(amrPath));
             int returnVal = fcinput.showOpenDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                Node rootNode;
-                filename = fcinput.getSelectedFile().getAbsolutePath();
-                DOMParser parser = new DOMParser();
-                Document doc;
-                try {
-                    parser.parse(filename);
-                } catch (SAXException | IOException ignored) {
-                }
-                doc = parser.getDocument();
-                rootNode = doc.getFirstChild();
                 AmrPanel newPanel;
                 newPanel = new AmrPanel(fcinput.getSelectedFile().getParent(), fcinput.getSelectedFile().getName());
                 diagramPane.add(newPanel, fcinput.getSelectedFile().getName(), diagramPane.getSelectedIndex() + 1);
-                newPanel.getDiagram().loadFromXml(rootNode);
                 getAnnotatedSentence(newPanel);
                 enableMenu();
             }

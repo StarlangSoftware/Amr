@@ -4,19 +4,19 @@ import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class AmrConnection extends AmrObject {
+public class AmrConnectionObject extends AmrObject {
 
-    private final AmrSimpleObject from;
-    private final AmrSimpleObject to;
+    private final AmrWordObject from;
+    private final AmrWordObject to;
 
-    public AmrConnection(AmrSimpleObject from, AmrSimpleObject to){
+    public AmrConnectionObject(AmrWordObject from, AmrWordObject to){
         this.from = from;
         this.to = to;
         this.boundingBox = new Rectangle(from.getCenter().x, from.getCenter().y, Math.abs(from.getCenter().x - to.getCenter().x), Math.abs(from.getCenter().y - to.getCenter().y));
     }
 
-    public AmrConnection clone(){
-        return new AmrConnection(from, to);
+    public AmrConnectionObject clone(){
+        return new AmrConnectionObject(from, to);
     }
 
     public void save(FileWriter outfile){

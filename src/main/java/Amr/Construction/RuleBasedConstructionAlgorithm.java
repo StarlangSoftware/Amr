@@ -1,6 +1,7 @@
-package Amr.Annotation;
+package Amr.Construction;
 
-import AnnotatedSentence.*;
+import AnnotatedSentence.AnnotatedSentence;
+import AnnotatedSentence.AnnotatedWord;
 import MorphologicalAnalysis.MorphologicalTag;
 import PropBank.ArgumentList;
 import WordNet.*;
@@ -8,7 +9,13 @@ import WordNet.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class AmrSentence extends AnnotatedSentence {
+public class RuleBasedConstructionAlgorithm implements AmrConstructionAlgorithm{
+    private WordNet wordNet;
+    private AnnotatedSentence sentence;
+    
+    public RuleBasedConstructionAlgorithm(WordNet wordNet){
+        this.wordNet = wordNet;
+    }
 
     private String withTabs(int tabCount, String string) {
         StringBuilder result = new StringBuilder();
@@ -23,8 +30,8 @@ public class AmrSentence extends AnnotatedSentence {
     }
 
     private boolean containsArg0(String semantic){
-        for (int i = 0; i < wordCount(); i++) {
-            AnnotatedWord word = (AnnotatedWord) getWord(i);
+        for (int i = 0; i <  sentence.wordCount(); i++) {
+            AnnotatedWord word = (AnnotatedWord) sentence.getWord(i);
             if (word.getArgumentList() != null && word.getArgumentList().containsArgument("ARG0", semantic)) {
                 return true;
             }
@@ -33,38 +40,38 @@ public class AmrSentence extends AnnotatedSentence {
     }
 
     private void extraArgs(ArrayList<String> output, AnnotatedWord word, int tabCount) {
-        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A1SG) && !toStems().contains("ben ")) {
+        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A1SG) && ! sentence.toStems().contains("ben ")) {
             output.add(withTabs(tabCount + 1, "ben:ARG0"));
         }
         if (word.getParse().getRootPos().equals("VERB") && word.getParse().getPos().equals("NOUN") && word.getParse().containsTag(MorphologicalTag.P1SG)) {
             output.add(withTabs(tabCount + 1, "ben:ARG0"));
         }
-        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A1PL) && !toStems().contains("biz ")) {
+        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A1PL) && ! sentence.toStems().contains("biz ")) {
             output.add(withTabs(tabCount + 1, "biz:ARG0"));
         }
         if (word.getParse().getRootPos().equals("VERB") && word.getParse().getPos().equals("NOUN") && word.getParse().containsTag(MorphologicalTag.P1PL)) {
             output.add(withTabs(tabCount + 1, "biz:ARG0"));
         }
-        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A2SG) && !toStems().contains("sen ")) {
+        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A2SG) && ! sentence.toStems().contains("sen ")) {
             output.add(withTabs(tabCount + 1, "sen:ARG0"));
         }
         if (word.getParse().getRootPos().equals("VERB") && word.getParse().getPos().equals("NOUN") && word.getParse().containsTag(MorphologicalTag.P2SG)) {
             output.add(withTabs(tabCount + 1, "sen:ARG0"));
         }
-        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A2PL) && !toStems().contains("siz ")) {
+        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A2PL) && ! sentence.toStems().contains("siz ")) {
             output.add(withTabs(tabCount + 1, "siz:ARG0"));
         }
         if (word.getParse().getRootPos().equals("VERB") && word.getParse().getPos().equals("NOUN") && word.getParse().containsTag(MorphologicalTag.P2PL)) {
             output.add(withTabs(tabCount + 1, "siz:ARG0"));
         }
-        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A3SG) && !toStems().contains("o ")) {
+        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A3SG) && ! sentence.toStems().contains("o ")) {
             if (!containsArg0(word.getSemantic())){
                 if (!(word.getParse().getPos().equals("NOUN") && (word.getParse().containsTag(MorphologicalTag.P1SG) || word.getParse().containsTag(MorphologicalTag.P1PL) || word.getParse().containsTag(MorphologicalTag.P2SG) || word.getParse().containsTag(MorphologicalTag.P2PL)))) {
                     output.add(withTabs(tabCount + 1, "o:ARG0"));
                 }
             }
         }
-        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A3PL) && !toStems().contains("onlar ")) {
+        if (word.getParse().getRootPos().equals("VERB") && word.getParse().containsTag(MorphologicalTag.A3PL) && ! sentence.toStems().contains("onlar ")) {
             if (!containsArg0(word.getSemantic())){
                 if (!(word.getParse().getPos().equals("NOUN") && (word.getParse().containsTag(MorphologicalTag.P1SG) || word.getParse().containsTag(MorphologicalTag.P1PL) || word.getParse().containsTag(MorphologicalTag.P2SG) || word.getParse().containsTag(MorphologicalTag.P2PL)))) {
                     output.add(withTabs(tabCount + 1, "onlar:ARG0"));
@@ -74,8 +81,8 @@ public class AmrSentence extends AnnotatedSentence {
     }
 
     private boolean containsMod(int index){
-        for (int i = 0; i < wordCount(); i++) {
-            AnnotatedWord word = (AnnotatedWord) getWord(i);
+        for (int i = 0; i <  sentence.wordCount(); i++) {
+            AnnotatedWord word = (AnnotatedWord) sentence.getWord(i);
             if (word.getUniversalDependency() != null && word.getUniversalDependency().to() == index + 1) {
                 if (word.getUniversalDependency().toString().equals("AMOD") || word.getUniversalDependency().toString().equals("NMOD")){
                     return true;
@@ -189,7 +196,7 @@ public class AmrSentence extends AnnotatedSentence {
             return;
         }
         done[index] = true;
-        AnnotatedWord current = (AnnotatedWord) getWord(index);
+        AnnotatedWord current = (AnnotatedWord) sentence.getWord(index);
         if (relation.equals("DET") && current.getParse().getWord().getName().equals("bir")){
             return;
         }
@@ -208,8 +215,8 @@ public class AmrSentence extends AnnotatedSentence {
         if (current.getParse().containsTag(MorphologicalTag.CONDITIONAL)){
             added = ":cond";
         }
-        for (int i = 0; i < wordCount(); i++) {
-            AnnotatedWord word = (AnnotatedWord) getWord(i);
+        for (int i = 0; i <  sentence.wordCount(); i++) {
+            AnnotatedWord word = (AnnotatedWord) sentence.getWord(i);
             if (word.getUniversalDependency() != null && word.getUniversalDependency().to() == index + 1) {
                 switch (word.getParse().getWord().getName()){
                     case "kadar":
@@ -231,12 +238,12 @@ public class AmrSentence extends AnnotatedSentence {
                 }
             }
         }
-        if (current.getParse().isCardinal() && index + 1 < wordCount()) {
-            String next = ((AnnotatedWord) getWord(index + 1)).getParse().getWord().getName();
+        if (current.getParse().isCardinal() && index + 1 <  sentence.wordCount()) {
+            String next = ((AnnotatedWord) sentence.getWord(index + 1)).getParse().getWord().getName();
             if (isMonth(next)) {
                 output.add(withTabs(tabCount, "date-entity:date"));
                 output.add(withTabs(tabCount + 1, onlyWord(current, index) + ":day"));
-                output.add(withTabs(tabCount + 1, onlyWord(((AnnotatedWord) getWord(index + 1)), index + 1) + ":month"));
+                output.add(withTabs(tabCount + 1, onlyWord(((AnnotatedWord) sentence.getWord(index + 1)), index + 1) + ":month"));
                 done[index + 1] = true;
             } else {
                 if (!extraAdded.isEmpty()){
@@ -279,8 +286,8 @@ public class AmrSentence extends AnnotatedSentence {
                 output.add(withTabs(tabCount + 1, "name:name"));
                 output.add(withTabs(tabCount + 2, onlyWord(current, index) + ":op1"));
                 for (int i = 1; i <= 3; i++){
-                    if (index + i < wordCount() && ((AnnotatedWord) getWord(index + i)).getSemantic() != null && ((AnnotatedWord) getWord(index + i)).getSemantic().equals(current.getSemantic())) {
-                        output.add(withTabs(tabCount + 2, onlyWord((AnnotatedWord) getWord(index + i), index + 1) + ":op" + (1 + i)));
+                    if (index + i <  sentence.wordCount() && ((AnnotatedWord) sentence.getWord(index + i)).getSemantic() != null && ((AnnotatedWord) sentence.getWord(index + i)).getSemantic().equals(current.getSemantic())) {
+                        output.add(withTabs(tabCount + 2, onlyWord((AnnotatedWord) sentence.getWord(index + i), index + 1) + ":op" + (1 + i)));
                         done[index + i] = true;
                     } else {
                         break;
@@ -302,18 +309,18 @@ public class AmrSentence extends AnnotatedSentence {
                     } else {
                         String currentWord = onlyWord(current, index);
                         for (int i = 1; i <= 3; i++) {
-                            if (index > i - 1 && !done[index - i] && index - i < wordCount() && ((AnnotatedWord) getWord(index - i)).getSemantic() != null && ((AnnotatedWord) getWord(index - i)).getSemantic().equals(current.getSemantic())) {
-                                currentWord = onlyWord((AnnotatedWord) getWord(index - i), index - i) + " " + currentWord;
+                            if (index > i - 1 && !done[index - i] && index - i <  sentence.wordCount() && ((AnnotatedWord) sentence.getWord(index - i)).getSemantic() != null && ((AnnotatedWord) sentence.getWord(index - i)).getSemantic().equals(current.getSemantic())) {
+                                currentWord = onlyWord((AnnotatedWord) sentence.getWord(index - i), index - i) + " " + currentWord;
                                 done[index - i] = true;
                             } else {
                                 break;
                             }
                         }
                         for (int i = 1; i <= 3; i++){
-                            if (index + i < wordCount() && ((AnnotatedWord) getWord(index + i)).getSemantic() != null && ((AnnotatedWord) getWord(index + i)).getSemantic().equals(current.getSemantic())) {
-                                currentWord += " " + onlyWord((AnnotatedWord) getWord(index + i), index + i);
+                            if (index + i <  sentence.wordCount() && ((AnnotatedWord) sentence.getWord(index + i)).getSemantic() != null && ((AnnotatedWord) sentence.getWord(index + i)).getSemantic().equals(current.getSemantic())) {
+                                currentWord += " " + onlyWord((AnnotatedWord) sentence.getWord(index + i), index + i);
                                 done[index + i] = true;
-                                current = (AnnotatedWord) getWord(index + i);
+                                current = (AnnotatedWord) sentence.getWord(index + i);
                                 currentWordIndex = index + i;
                             } else {
                                 break;
@@ -375,12 +382,12 @@ public class AmrSentence extends AnnotatedSentence {
                 }
             }
         }
-        for (int i = 0; i < wordCount(); i++) {
-            AnnotatedWord word = (AnnotatedWord) getWord(i);
-            if (word.getParse().isCardinal() && i + 1 < wordCount()) {
-                String next = ((AnnotatedWord) getWord(i + 1)).getParse().getWord().getName();
+        for (int i = 0; i <  sentence.wordCount(); i++) {
+            AnnotatedWord word = (AnnotatedWord) sentence.getWord(i);
+            if (word.getParse().isCardinal() && i + 1 <  sentence.wordCount()) {
+                String next = ((AnnotatedWord) sentence.getWord(i + 1)).getParse().getWord().getName();
                 if (isMonth(next)) {
-                    if (((AnnotatedWord) getWord(i + 1)).getUniversalDependency().to() == index + 1) {
+                    if (((AnnotatedWord) sentence.getWord(i + 1)).getUniversalDependency().to() == index + 1) {
                         metaVerbTags(word, done, i, tabCount + 1, output, word.getUniversalDependency().toString(), current.getSemantic(), wordNet);
                     }
                     i++;
@@ -388,13 +395,13 @@ public class AmrSentence extends AnnotatedSentence {
                 }
             }
             int j = i;
-            while (i < wordCount() - 1 && ((AnnotatedWord) getWord(i + 1)).getSemantic() != null && ((AnnotatedWord) getWord(i + 1)).getSemantic().equals(word.getSemantic())) {
+            while (i <  sentence.wordCount() - 1 && ((AnnotatedWord) sentence.getWord(i + 1)).getSemantic() != null && ((AnnotatedWord) sentence.getWord(i + 1)).getSemantic().equals(word.getSemantic())) {
                 i++;
             }
             if (word.getUniversalDependency() != null && word.getUniversalDependency().to() == index + 1) {
                 metaVerbTags(word, done, j, tabCount + 1, output, word.getUniversalDependency().toString(), current.getSemantic(), wordNet);
             } else {
-                if (j != i && ((AnnotatedWord) getWord(i)).getUniversalDependency() != null && ((AnnotatedWord) getWord(i)).getUniversalDependency().to() == index + 1) {
+                if (j != i && ((AnnotatedWord) sentence.getWord(i)).getUniversalDependency() != null && ((AnnotatedWord) sentence.getWord(i)).getUniversalDependency().to() == index + 1) {
                     metaVerbTags(word, done, j, tabCount + 1, output, word.getUniversalDependency().toString(), current.getSemantic(), wordNet);
                 }
             }
@@ -403,8 +410,8 @@ public class AmrSentence extends AnnotatedSentence {
 
     private void metaVerbTags(AnnotatedWord word, boolean[] done, int index, int tabCount, ArrayList<String> output, String relation, String semantic, WordNet wordNet) {
         boolean parataxisOrConj = false;
-        for (int i = 0; i < wordCount(); i++) {
-            AnnotatedWord connectedWord = (AnnotatedWord) getWord(i);
+        for (int i = 0; i <  sentence.wordCount(); i++) {
+            AnnotatedWord connectedWord = (AnnotatedWord) sentence.getWord(i);
             if (connectedWord.getUniversalDependency() != null && (connectedWord.getUniversalDependency().toString().equals("PARATAXIS") || connectedWord.getUniversalDependency().toString().equals("CONJ")) && connectedWord.getUniversalDependency().to() == index + 1) {
                 parataxisOrConj = true;
                 break;
@@ -413,8 +420,8 @@ public class AmrSentence extends AnnotatedSentence {
         if (parataxisOrConj) {
             output.add(withTabs(tabCount, "and"));
             int count = 1;
-            for (int i = 0; i < wordCount(); i++) {
-                AnnotatedWord connectedWord = (AnnotatedWord) getWord(i);
+            for (int i = 0; i <  sentence.wordCount(); i++) {
+                AnnotatedWord connectedWord = (AnnotatedWord) sentence.getWord(i);
                 if (connectedWord.getUniversalDependency() != null && (connectedWord.getUniversalDependency().toString().equals("PARATAXIS") || connectedWord.getUniversalDependency().toString().equals("CONJ")) && connectedWord.getUniversalDependency().to() == index + 1) {
                     printAmrRecursively(done, i, tabCount + 1, output, relation, semantic, wordNet, ":op" + count);
                     count++;
@@ -441,12 +448,14 @@ public class AmrSentence extends AnnotatedSentence {
         }
     }
 
-    public ArrayList<String> constructAmr(WordNet wordNet) {
+    @Override
+    public ArrayList<String> constructAmr(AnnotatedSentence sentence) {
         ArrayList<String> output = new ArrayList<>();
-        boolean[] done = new boolean[wordCount()];
-        output.add(getFileName() + "\t" + toWords());
-        for (int i = 0; i < wordCount(); i++) {
-            AnnotatedWord word = (AnnotatedWord) getWord(i);
+        this.sentence = sentence;
+        boolean[] done = new boolean[sentence.wordCount()];
+        output.add(sentence.getFileName() + "\t" + sentence.toWords());
+        for (int i = 0; i < sentence.wordCount(); i++) {
+            AnnotatedWord word = (AnnotatedWord) sentence.getWord(i);
             if (word.getUniversalDependency() != null && word.getUniversalDependency().toString().equals("ROOT")) {
                 metaVerbTags(word, done, i, 0, output, "ROOT", word.getSemantic(), wordNet);
             }

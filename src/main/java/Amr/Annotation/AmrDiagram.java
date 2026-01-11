@@ -1,50 +1,70 @@
 package Amr.Annotation;
 
+import Amr.Corpus.AmrConnection;
+import Amr.Corpus.AmrSentence;
+import Amr.Corpus.AmrWord;
 import Corpus.FileDescription;
-import com.sun.org.apache.xerces.internal.parsers.DOMParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AmrDiagram {
 
     protected ArrayList<AmrObject> objects;
-    private final FileDescription fileDescription;
+    private final AmrSentence sentence;
 
     public AmrDiagram(String path, String fileName) {
-        fileDescription = new FileDescription(path, fileName);
-        objects = new ArrayList<AmrObject>();
+        sentence = new AmrSentence(path, fileName);
+        constructObjects();
+    }
+
+    public AmrDiagram(FileDescription fileDescription) {
+        sentence = new AmrSentence(fileDescription);
+        constructObjects();
     }
 
     public AmrDiagram clone() {
         int i;
-        AmrDiagram newDiagram = new AmrDiagram(fileDescription.getPath(), fileDescription.getRawFileName());
+        AmrDiagram newDiagram = new AmrDiagram(sentence.getFileDescription());
         for (i = 0; i < objects.size(); i++) {
             newDiagram.objects.add(objects.get(i).clone());
         }
         return newDiagram;
     }
 
+    public void constructObjects(){
+        HashMap<String, AmrWordObject> wordObjects = new HashMap<>();
+        objects = new ArrayList<>();
+        for (int i = 0; i < sentence.wordCount(); i++){
+            AmrWord word = (AmrWord) sentence.getWord(i);
+            AmrWordObject amrWordObject = new AmrWordObject(word);
+            objects.add(amrWordObject);
+            wordObjects.put(word.getName(), amrWordObject);
+        }
+        for (int i = 0; i < sentence.connectionCount(); i++){
+            AmrConnection connection = sentence.getConnection(i);
+            objects.add(new AmrConnectionObject(wordObjects.get(connection.from().getName()), wordObjects.get(connection.to().getName())));
+        }
+    }
+
     public String getFileName(){
-        return fileDescription.getRawFileName();
+        return sentence.getFileName();
     }
 
     public String getFolder(){
-        return fileDescription.getPath().substring(fileDescription.getPath().lastIndexOf("/"));
+        return sentence.getFolder();
     }
 
     public void addWord(String name, Point position) {
         objects.add(new AmrWordObject(name, position));
+        sentence.addWord(new AmrWord(name, position));
     }
 
-    public void addConnection(AmrObject from, AmrObject to) {
-        objects.add(new AmrConnection((AmrSimpleObject) from, (AmrSimpleObject) to));
+    public void addConnection(AmrWordObject from, AmrWordObject to) {
+        objects.add(new AmrConnectionObject(from, to));
+        sentence.addConnection(from.word, to.word);
     }
 
     public void save(String filename) {
@@ -73,55 +93,6 @@ public class AmrDiagram {
         return null;
     }
 
-    public AmrObject getObject(String name) {
-        int i;
-        for (i = 0; i < objects.size(); i++) {
-            if (objects.get(i).getClass().getName().equalsIgnoreCase("Amr.Annotation.AmrWordObject")) {
-                if (((AmrSimpleObject) objects.get(i)).getName().equalsIgnoreCase(name)) {
-                    return objects.get(i);
-                }
-            }
-        }
-        return null;
-    }
-
-    private void reload(){
-        objects.clear();
-        DOMParser parser = new DOMParser();
-        Document doc;
-        try {
-            parser.parse(fileDescription.getFileName());
-        } catch (SAXException | IOException ignored) {
-        }
-        doc = parser.getDocument();
-        loadFromXml(doc.getFirstChild());
-    }
-
-    public void loadFromXml(Node rootNode) {
-        Node objectNode;
-        NamedNodeMap attributes;
-        String objectName;
-        AmrObject from, to;
-        objectNode = rootNode.getFirstChild();
-        while (objectNode != null) {
-            if (objectNode.hasAttributes()) {
-                objectName = objectNode.getNodeName();
-                attributes = objectNode.getAttributes();
-                if (objectName.equalsIgnoreCase("Word")) {
-                    addWord(attributes.getNamedItem("name").getNodeValue(), new Point(Integer.parseInt(attributes.getNamedItem("positionX").getNodeValue()), Integer.parseInt(attributes.getNamedItem("positionY").getNodeValue())));
-                } else {
-                    if (objectName.equalsIgnoreCase("Connection")) {
-                        from = getObject(attributes.getNamedItem("from").getNodeValue());
-                        to = getObject(attributes.getNamedItem("to").getNodeValue());
-                        addConnection(from, to);
-                    }
-                }
-
-            }
-            objectNode = objectNode.getNextSibling();
-        }
-    }
-
     public void paint(Graphics graphics) {
         int i;
         for (i = 0; i < objects.size(); i++) {
@@ -138,7 +109,7 @@ public class AmrDiagram {
 
     public ArrayList<AmrObject> copyAll() {
         int i;
-        ArrayList<AmrObject> result = new ArrayList<AmrObject>();
+        ArrayList<AmrObject> result = new ArrayList<>();
         for (i = 0; i < objects.size(); i++) {
             if (objects.get(i).isSelected()) {
                 result.add(objects.get(i).clone());
@@ -159,11 +130,7 @@ public class AmrDiagram {
     public void selectArea(Rectangle area) {
         int i;
         for (i = 0; i < objects.size(); i++) {
-            if (area.contains(objects.get(i).getCenter())) {
-                objects.get(i).select(true);
-            } else {
-                objects.get(i).select(false);
-            }
+            objects.get(i).select(area.contains(objects.get(i).getCenter()));
         }
     }
 
@@ -192,17 +159,13 @@ public class AmrDiagram {
     }
 
     public void previousAmr(int count){
-        if (fileDescription.previousFileExists(count)){
-            fileDescription.addToIndex(-count);
-            reload();
-        }
+        sentence.previousSentence(count);
+        constructObjects();
     }
 
     public void nextAmr(int count){
-        if (fileDescription.nextFileExists(count)){
-            fileDescription.addToIndex(count);
-            reload();
-        }
+        sentence.nextSentence(count);
+        constructObjects();
     }
 
 }

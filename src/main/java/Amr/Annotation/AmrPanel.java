@@ -37,7 +37,7 @@ public class AmrPanel extends DiagramPanel {
             toObject = diagram.getAmrObjectAtPos(e.getPoint());
             if (toObject != null) {
                 save();
-                diagram.addConnection(fromObject, toObject);
+                diagram.addConnection((AmrWordObject)fromObject, (AmrWordObject)toObject);
                 this.repaint();
             }
         }
@@ -48,7 +48,7 @@ public class AmrPanel extends DiagramPanel {
         if (lastCommand == EnumCommand.EMPTY && e.getClickCount() == 2) {
             AmrObject current = diagram.getAmrObjectAtPos(e.getPoint());
             if (current instanceof AmrWordObject) {
-                String word = JOptionPane.showInputDialog(null, "Enter Word Name", ((AmrWordObject) current).name);
+                String word = JOptionPane.showInputDialog(null, "Enter Word Name", ((AmrWordObject) current).getName());
                 if (word != null) {
                     save();
                     ((AmrWordObject) current).setName(word);
