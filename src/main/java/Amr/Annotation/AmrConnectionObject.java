@@ -8,20 +8,33 @@ public class AmrConnectionObject extends AmrObject {
 
     private final AmrWordObject from;
     private final AmrWordObject to;
+    private String with;
 
-    public AmrConnectionObject(AmrWordObject from, AmrWordObject to){
+    public AmrConnectionObject(AmrWordObject from, AmrWordObject to, String with){
         this.from = from;
         this.to = to;
-        this.boundingBox = new Rectangle(from.getCenter().x, from.getCenter().y, Math.abs(from.getCenter().x - to.getCenter().x), Math.abs(from.getCenter().y - to.getCenter().y));
+        this.with = with;
+        int upperLeftX, upperLeftY;
+        upperLeftX = Math.min(from.getCenter().x, to.getCenter().x);
+        upperLeftY = Math.min(from.getCenter().y, to.getCenter().y);
+        this.boundingBox = new Rectangle(upperLeftX, upperLeftY, Math.abs(from.getCenter().x - to.getCenter().x), Math.abs(from.getCenter().y - to.getCenter().y));
+    }
+
+    public String with(){
+        return with;
+    }
+
+    public void setWith(String with){
+        this.with = with;
     }
 
     public AmrConnectionObject clone(){
-        return new AmrConnectionObject(from, to);
+        return new AmrConnectionObject(from, to, with);
     }
 
     public void save(FileWriter outfile){
         try{
-            outfile.write("<Connection from=\""+ this.from.getName() + "\" to=\"" + this.to.getName() + "\"/>\n");
+            outfile.write("<Connection from=\""+ this.from.getName() + "\" to=\"" + this.to.getName() + "\" with=\"" + this.with + "\"/>\n");
         }
         catch (IOException ioException){
             System.out.println("Output file can not be opened");
@@ -59,6 +72,7 @@ public class AmrConnectionObject extends AmrObject {
         int y1 = from.getCenter().y + from.boundingBox.height / 2;
         int x2 = to.getCenter().x;
         int y2 = to.getCenter().y - to.boundingBox.height / 2;
+        g.drawString(with, (x1 + x2) / 2, (y1 + y2) / 2);
         g.drawLine(x1, y1, x2, y2);
         printArrow(g, x1, y1, x2, y2);
     }

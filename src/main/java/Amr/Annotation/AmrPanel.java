@@ -35,8 +35,9 @@ public class AmrPanel extends DiagramPanel {
         moved = false;
         if (lastCommand != null && lastCommand == EnumCommand.CONNECTION && fromObject != null) {
             toObject = diagram.getAmrObjectAtPos(e.getPoint());
-            if (toObject != null) {
-                diagram.addConnection((AmrWordObject)fromObject, (AmrWordObject)toObject);
+            if (toObject instanceof AmrWordObject && !fromObject.equals(toObject)) {
+                String with = JOptionPane.showInputDialog(null, "Enter Connection Name", "");
+                diagram.addConnection((AmrWordObject)fromObject, (AmrWordObject)toObject, with);
                 save();
                 this.repaint();
             }
@@ -51,6 +52,14 @@ public class AmrPanel extends DiagramPanel {
                 String word = JOptionPane.showInputDialog(null, "Enter Word Name", ((AmrWordObject) current).getName());
                 if (word != null) {
                     ((AmrWordObject) current).setName(word);
+                    save();
+                    this.repaint();
+                }
+            }
+            if (current instanceof AmrConnectionObject) {
+                String with = JOptionPane.showInputDialog(null, "Enter Connection Name", ((AmrConnectionObject) current).with());
+                if (with != null) {
+                    ((AmrConnectionObject) current).setWith(with);
                     save();
                     this.repaint();
                 }

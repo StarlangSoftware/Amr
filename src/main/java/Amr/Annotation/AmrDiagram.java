@@ -45,7 +45,7 @@ public class AmrDiagram {
         }
         for (int i = 0; i < sentence.connectionCount(); i++){
             AmrConnection connection = sentence.getConnection(i);
-            objects.add(new AmrConnectionObject(wordObjects.get(connection.from().getName()), wordObjects.get(connection.to().getName())));
+            objects.add(new AmrConnectionObject(wordObjects.get(connection.from().getName()), wordObjects.get(connection.to().getName()), connection.with()));
         }
     }
 
@@ -62,9 +62,9 @@ public class AmrDiagram {
         sentence.addWord(new AmrWord(name, position));
     }
 
-    public void addConnection(AmrWordObject from, AmrWordObject to) {
-        objects.add(new AmrConnectionObject(from, to));
-        sentence.addConnection(from.word, to.word);
+    public void addConnection(AmrWordObject from, AmrWordObject to, String with) {
+        objects.add(new AmrConnectionObject(from, to, with));
+        sentence.addConnection(from.word, to.word, with);
     }
 
     public void save(String filename) {

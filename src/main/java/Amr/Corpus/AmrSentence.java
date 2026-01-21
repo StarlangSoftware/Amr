@@ -72,8 +72,8 @@ public class AmrSentence extends Sentence {
         return connections.size();
     }
 
-    public void addConnection(AmrWord from, AmrWord to){
-        AmrConnection connection = new AmrConnection(from, to);
+    public void addConnection(AmrWord from, AmrWord to, String with){
+        AmrConnection connection = new AmrConnection(from, to, with);
         connections.add(connection);
     }
 
@@ -82,6 +82,7 @@ public class AmrSentence extends Sentence {
         NamedNodeMap attributes;
         String objectName;
         AmrWord from, to;
+        String with;
         words.clear();
         objectNode = rootNode.getFirstChild();
         while (objectNode != null) {
@@ -95,8 +96,13 @@ public class AmrSentence extends Sentence {
                     if (objectName.equalsIgnoreCase("Connection")) {
                         from = getWord(attributes.getNamedItem("from").getNodeValue());
                         to = getWord(attributes.getNamedItem("to").getNodeValue());
+                        if (attributes.getNamedItem("with") != null) {
+                            with = attributes.getNamedItem("with").getNodeValue();
+                        } else {
+                            with = "";
+                        }
                         if (from != null && to != null){
-                            addConnection(from, to);
+                            addConnection(from, to, with);
                         }
                     }
                 }
@@ -108,6 +114,7 @@ public class AmrSentence extends Sentence {
     public void previousSentence(int count){
         if (fileDescription.previousFileExists(count)){
             fileDescription.addToIndex(-count);
+            connections = new ArrayList<>();
             reload();
         }
     }
@@ -115,6 +122,7 @@ public class AmrSentence extends Sentence {
     public void nextSentence(int count){
         if (fileDescription.nextFileExists(count)){
             fileDescription.addToIndex(count);
+            connections = new ArrayList<>();
             reload();
         }
     }
