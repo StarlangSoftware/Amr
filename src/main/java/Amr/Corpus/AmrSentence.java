@@ -22,6 +22,7 @@ public class AmrSentence extends Sentence {
 
     public AmrSentence(FileDescription fileDescription){
         this.fileDescription = fileDescription;
+        connections = new ArrayList<>();
         reload();
     }
 
@@ -33,7 +34,9 @@ public class AmrSentence extends Sentence {
         } catch (SAXException | IOException ignored) {
         }
         doc = parser.getDocument();
-        loadFromXml(doc.getFirstChild());
+        if (doc != null) {
+            loadFromXml(doc.getFirstChild());
+        }
     }
 
     public String getRawFileName(){
@@ -80,7 +83,6 @@ public class AmrSentence extends Sentence {
         String objectName;
         AmrWord from, to;
         words.clear();
-        connections = new ArrayList<>();
         objectNode = rootNode.getFirstChild();
         while (objectNode != null) {
             if (objectNode.hasAttributes()) {
