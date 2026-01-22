@@ -29,7 +29,7 @@ public class AmrWordObject extends AmrObject {
     }
 
     public AmrWordObject clone(){
-        return new AmrWordObject(word.getName(), new Point());
+        return new AmrWordObject(word.getName(), word.getPosition());
     }
 
     public void save(FileWriter outfile){

@@ -60,10 +60,13 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
         dragged = true;
         if (lastCommand != null && lastCommand == EnumCommand.EMPTY){
             Point toPoint = e.getPoint();
-            if (diagram.getAmrObjectAtPos(fromPoint) == null){
+            if (diagram.getNearestAmrObjectAtPos(fromPoint) == null){
                 selectedArea = new Rectangle(fromPoint.x, fromPoint.y, Math.abs(toPoint.x - fromPoint.x), Math.abs(toPoint.y - fromPoint.y));
                 diagram.selectArea(selectedArea);
             } else {
+                if (!moved){
+                    undoList.add(diagram.clone());
+                }
                 moved = true;
                 diagram.moveSelected(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
                 save();
@@ -76,7 +79,7 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
     public void mouseClicked(MouseEvent e){
         if (lastCommand != null && lastCommand == EnumCommand.EMPTY){
             AmrObject current;
-            current = diagram.getAmrObjectAtPos(e.getPoint());
+            current = diagram.getNearestAmrObjectAtPos(e.getPoint());
             if (current != null){
                 current.select(!current.isSelected());
             } else {
@@ -89,7 +92,7 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
     public void mouseMoved(MouseEvent e){
         AmrObject current;
         if (lastCommand != null && lastCommand == EnumCommand.EMPTY){
-            current = diagram.getAmrObjectAtPos(e.getPoint());
+            current = diagram.getNearestAmrObjectAtPos(e.getPoint());
             if (current == null){
                 if (previousColored != null){
                     previousColored.colored = false;

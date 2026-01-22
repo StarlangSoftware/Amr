@@ -13,7 +13,11 @@ import java.util.HashMap;
 public class AmrDiagram {
 
     protected ArrayList<AmrObject> objects;
-    private final AmrSentence sentence;
+    private AmrSentence sentence;
+
+    public AmrDiagram() {
+        objects = new ArrayList<>();
+    }
 
     public AmrDiagram(String path, String fileName) {
         sentence = new AmrSentence(path, fileName);
@@ -27,10 +31,11 @@ public class AmrDiagram {
 
     public AmrDiagram clone() {
         int i;
-        AmrDiagram newDiagram = new AmrDiagram(sentence.getFileDescription());
+        AmrDiagram newDiagram = new AmrDiagram();
         for (i = 0; i < objects.size(); i++) {
             newDiagram.objects.add(objects.get(i).clone());
         }
+        newDiagram.sentence = sentence;
         return newDiagram;
     }
 
@@ -87,14 +92,20 @@ public class AmrDiagram {
         save(sentence.getFileName());
     }
 
-    public AmrObject getAmrObjectAtPos(Point p) {
+    public AmrObject getNearestAmrObjectAtPos(Point p) {
         int i;
+        int minDistance = Integer.MAX_VALUE;
+        AmrObject nearestObject = null;
         for (i = 0; i < objects.size(); i++) {
             if (objects.get(i).contains(p)) {
-                return objects.get(i);
+                int distance = (int)((objects.get(i).boundingBox.getCenterX() - p.x) * (objects.get(i).boundingBox.getCenterX() - p.x) + (objects.get(i).boundingBox.getCenterY() - p.y) * (objects.get(i).boundingBox.getCenterY() - p.y));
+                if  (distance < minDistance) {
+                    minDistance = distance;
+                    nearestObject = objects.get(i);
+                }
             }
         }
-        return null;
+        return nearestObject;
     }
 
     public void paint(Graphics graphics) {

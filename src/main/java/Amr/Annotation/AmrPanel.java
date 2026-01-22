@@ -19,7 +19,7 @@ public class AmrPanel extends DiagramPanel {
         super.mousePressed(e);
         fromObject = null;
         if (lastCommand != null && lastCommand == EnumCommand.CONNECTION) {
-            current = diagram.getAmrObjectAtPos(e.getPoint());
+            current = diagram.getNearestAmrObjectAtPos(e.getPoint());
             if (current != null) {
                 if (current instanceof AmrWordObject) {
                     fromObject = current;
@@ -34,9 +34,10 @@ public class AmrPanel extends DiagramPanel {
         dragged = false;
         moved = false;
         if (lastCommand != null && lastCommand == EnumCommand.CONNECTION && fromObject != null) {
-            toObject = diagram.getAmrObjectAtPos(e.getPoint());
+            toObject = diagram.getNearestAmrObjectAtPos(e.getPoint());
             if (toObject instanceof AmrWordObject && !fromObject.equals(toObject)) {
                 String with = JOptionPane.showInputDialog(null, "Enter Connection Name", "");
+                undoList.add(diagram.clone());
                 diagram.addConnection((AmrWordObject)fromObject, (AmrWordObject)toObject, with);
                 save();
                 this.repaint();
@@ -47,10 +48,11 @@ public class AmrPanel extends DiagramPanel {
     public void mouseClicked(MouseEvent e) {
         super.mouseClicked(e);
         if (lastCommand == EnumCommand.EMPTY && e.getClickCount() == 2) {
-            AmrObject current = diagram.getAmrObjectAtPos(e.getPoint());
+            AmrObject current = diagram.getNearestAmrObjectAtPos(e.getPoint());
             if (current instanceof AmrWordObject) {
                 String word = JOptionPane.showInputDialog(null, "Enter Word Name", ((AmrWordObject) current).getName());
                 if (word != null) {
+                    undoList.add(diagram.clone());
                     ((AmrWordObject) current).setName(word);
                     save();
                     this.repaint();
@@ -59,6 +61,7 @@ public class AmrPanel extends DiagramPanel {
             if (current instanceof AmrConnectionObject) {
                 String with = JOptionPane.showInputDialog(null, "Enter Connection Name", ((AmrConnectionObject) current).with());
                 if (with != null) {
+                    undoList.add(diagram.clone());
                     ((AmrConnectionObject) current).setWith(with);
                     save();
                     this.repaint();
@@ -69,6 +72,7 @@ public class AmrPanel extends DiagramPanel {
             if (lastCommand == EnumCommand.WORD) {
                 String wordName = JOptionPane.showInputDialog(null, "Enter Use Case Name", "UML Editor", JOptionPane.QUESTION_MESSAGE);
                 if (wordName != null) {
+                    undoList.add(diagram.clone());
                     diagram.addWord(wordName, e.getPoint());
                     save();
                     this.repaint();
@@ -80,7 +84,6 @@ public class AmrPanel extends DiagramPanel {
 
     public void save() {
         diagram.save();
-        undoList.add(diagram.clone());
     }
 
     public void undo() {

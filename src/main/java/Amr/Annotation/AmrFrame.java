@@ -234,6 +234,7 @@ public class AmrFrame extends JFrame implements ActionListener {
             current = (DiagramPanel) diagramPane.getSelectedComponent();
             if (current != null) {
                 copyList = current.getDiagram().copyAll();
+                current.undoList.add(current.diagram.clone());
                 current.getDiagram().deleteSelected();
                 current.save();
                 current.repaint();
@@ -243,6 +244,7 @@ public class AmrFrame extends JFrame implements ActionListener {
             DiagramPanel current;
             current = (DiagramPanel) diagramPane.getSelectedComponent();
             if (current != null) {
+                current.undoList.add(current.diagram.clone());
                 current.getDiagram().pasteObjects(copyList);
                 current.save();
                 current.repaint();
@@ -252,6 +254,7 @@ public class AmrFrame extends JFrame implements ActionListener {
             DiagramPanel current;
             current = (DiagramPanel) diagramPane.getSelectedComponent();
             if (current != null) {
+                current.undoList.add(current.diagram.clone());
                 current.getDiagram().deleteSelected();
                 current.save();
                 current.repaint();
