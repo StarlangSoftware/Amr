@@ -1,6 +1,9 @@
 package Amr.Annotation;
 
+import Amr.Construction.RuleBasedConstructionAlgorithm;
 import AnnotatedSentence.AnnotatedSentence;
+import WordNet.WordNet;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -45,6 +48,7 @@ public class AmrFrame extends JFrame implements ActionListener {
     protected JLabel infoBottom;
     protected JPanel bottom;
     private AnnotatedSentence sentence;
+    private final WordNet wordNet;
 
     private JMenuItem addMenuItem(JMenu menu, String name, KeyStroke stroke) {
         JMenuItem newItem;
@@ -132,6 +136,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         JMenu newMenu;
         menu = new JMenuBar();
         setJMenuBar(menu);
+        wordNet = new WordNet();
         fileMenu = new JMenu("File");
         menu.add(fileMenu);
         newMenu = new JMenu("New");
@@ -340,40 +345,22 @@ public class AmrFrame extends JFrame implements ActionListener {
                     current.setCommand(lastCommand);
                 } else {
                     if (FORWARD.equals(cmd)){
-                        current.nextAmr(1);
-                        diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
-                        getAnnotatedSentence(current);
-                        repaint();
+                        nextAmr(current, 1);
                     } else {
                         if (BACKWARD.equals(cmd)){
-                            current.previousAmr(1);
-                            diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
-                            getAnnotatedSentence(current);
-                            repaint();
+                            previousAmr(current,1);
                         } else {
                             if (FASTFORWARD.equals(cmd)){
-                                current.nextAmr(10);
-                                diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
-                                getAnnotatedSentence(current);
-                                repaint();
+                                nextAmr(current, 10);
                             } else {
                                 if (FASTBACKWARD.equals(cmd)){
-                                    current.nextAmr(-10);
-                                    diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
-                                    getAnnotatedSentence(current);
-                                    repaint();
+                                    previousAmr(current,10);
                                 } else {
                                     if (FASTFASTFORWARD.equals(cmd)){
-                                        current.nextAmr(100);
-                                        diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
-                                        getAnnotatedSentence(current);
-                                        repaint();
+                                        nextAmr(current, 100);
                                     } else {
                                         if (FASTFASTBACKWARD.equals(cmd)){
-                                            current.nextAmr(-100);
-                                            diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
-                                            getAnnotatedSentence(current);
-                                            repaint();
+                                            previousAmr(current,100);
                                         }
                                     }
                                 }
@@ -425,6 +412,79 @@ public class AmrFrame extends JFrame implements ActionListener {
         }
     }
 
+    private String getNextAnnotatedSentence(DiagramPanel current, int count){
+        String fileName;
+        if (subFolder.equals("true")){
+            fileName = phrasePath + "/" + current.getFolder() + "/" + current.getNextFileName(count);
+        } else {
+            fileName = phrasePath + "/" + current.getNextFileName(count);
+        }
+        if (new File(fileName).exists()){
+            return fileName;
+        } else {
+            return null;
+        }
+    }
+
+    private String getPreviousAnnotatedSentence(DiagramPanel current, int count){
+        String fileName;
+        if (subFolder.equals("true")){
+            fileName = phrasePath + "/" + current.getFolder() + "/" + current.getPreviousFileName(count);
+        } else {
+            fileName = phrasePath + "/" + current.getPreviousFileName(count);
+        }
+        if (new File(fileName).exists()){
+            return fileName;
+        } else {
+            return null;
+        }
+    }
+
+    private void nextAmr(DiagramPanel current, int count){
+        if (current.diagram.nextAmrExists(count)){
+            current.nextAmr(count);
+            diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
+            getAnnotatedSentence(current);
+            repaint();
+        } else {
+            String nextSentence = getNextAnnotatedSentence(current, count);
+            if (nextSentence != null){
+                ArrayList<String> amr = new RuleBasedConstructionAlgorithm(wordNet).constructAmr(new AnnotatedSentence(new File(nextSentence)));
+                String outputFileName = getAmrOutputFileName(amr.get(0));
+                saveAmr((ArrayList<String>) amr.subList(1, amr.size() - 1), outputFileName);
+            }
+        }
+    }
+
+    private void previousAmr(DiagramPanel current, int count){
+        if (current.diagram.previousAmrExists(count)){
+            current.previousAmr(count);
+            diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
+            getAnnotatedSentence(current);
+            repaint();
+        } else {
+            String previousSentence = getPreviousAnnotatedSentence(current, count);
+            if (previousSentence != null){
+                ArrayList<String> amr = new RuleBasedConstructionAlgorithm(wordNet).constructAmr(new AnnotatedSentence(new File(previousSentence)));
+                String outputFileName = getAmrOutputFileName(amr.get(0));
+                saveAmr((ArrayList<String>) amr.subList(1, amr.size() - 1), outputFileName);
+            }
+        }
+    }
+
+    private String getAmrOutputFileName(String line){
+        String folder = ".";
+        if (line.contains("/")){
+            folder = line.substring(0, line.indexOf("/"));
+            File file = new File("./" + folder);
+            if (!file.exists()){
+                file.mkdir();
+            }
+            line = line.substring(line.indexOf("/") + 1);
+        }
+        return folder + "/" + line;
+    }
+
     public void prepareData(String fileName) throws FileNotFoundException {
         ArrayList<String> lines = new ArrayList<>();
         String outputFileName = null;
@@ -433,18 +493,9 @@ public class AmrFrame extends JFrame implements ActionListener {
         while (input.hasNext()){
             String line = input.nextLine();
             if (line.matches(".*[0-9]+\\.(train|test|dev)")){
-                String folder = ".";
-                if (line.contains("/")){
-                    folder = line.substring(0, line.indexOf("/"));
-                    File file = new File("./" + folder);
-                    if (!file.exists()){
-                        file.mkdir();
-                    }
-                    line = line.substring(line.indexOf("/") + 1);
-                }
-                outputFileName = folder + "/" + line;
                 firstLine = true;
                 skipFile = false;
+                outputFileName = getAmrOutputFileName(line);
                 lines = new ArrayList<>();
             } else {
                 if (line.isEmpty()){

@@ -125,6 +125,14 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
         this.lastCommand = lastCommand;
     }
 
+    public String getNextFileName(int count){
+        return diagram.getNextFileName(count);
+    }
+
+    public String getPreviousFileName(int count){
+        return diagram.getPreviousFileName(count);
+    }
+
     public void previousAmr(int count){
         diagram.previousAmr(count);
         filename = diagram.getFileName();

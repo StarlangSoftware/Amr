@@ -172,6 +172,20 @@ public class AmrDiagram {
             }
         }
     }
+    
+    public String getPreviousFileName(int count){
+        sentence.getFileDescription().addToIndex(-count);
+        String fileName = sentence.getRawFileName();
+        sentence.getFileDescription().addToIndex(count);
+        return fileName;
+    }
+
+    public String getNextFileName(int count){
+        sentence.getFileDescription().addToIndex(count);
+        String fileName = sentence.getRawFileName();
+        sentence.getFileDescription().addToIndex(-count);
+        return fileName;
+    }
 
     public void previousAmr(int count){
         sentence.previousSentence(count);
@@ -181,6 +195,14 @@ public class AmrDiagram {
     public void nextAmr(int count){
         sentence.nextSentence(count);
         constructObjects();
+    }
+
+    public boolean previousAmrExists(int count){
+        return sentence.getFileDescription().previousFileExists(count);
+    }
+
+    public boolean nextAmrExists(int count){
+        return sentence.getFileDescription().nextFileExists(count);
     }
 
 }
