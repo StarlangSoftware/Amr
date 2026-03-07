@@ -4,6 +4,8 @@ import Amr.Corpus.AmrConnection;
 import Amr.Corpus.AmrSentence;
 import Amr.Corpus.AmrWord;
 import Corpus.FileDescription;
+import javafx.geometry.BoundingBox;
+
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,6 +29,40 @@ public class AmrDiagram {
     public AmrDiagram(FileDescription fileDescription) {
         sentence = new AmrSentence(fileDescription);
         constructObjects();
+    }
+
+    public Rectangle getBoundingBox(){
+        Rectangle result = new Rectangle();
+        boolean first = true;
+        for (AmrObject object : objects){
+            if (object instanceof AmrWordObject){
+                int stringSize = (int) (7.3 * ((AmrWordObject) object).word.getName().length());
+                int x = ((AmrWordObject) object).word.getPosition().x - stringSize - 5;
+                int y = ((AmrWordObject) object).word.getPosition().y - 15;
+                if (first){
+                    result = new Rectangle(x, y,  2 * stringSize + 20, 80);
+                    first = false;
+                } else {
+                    if (x < result.x){
+                        result.width += result.x - x;
+                        result.x = x;
+                    } else {
+                        if (x + 2 * stringSize + 20 > result.x + result.width){
+                            result.width += x + 2 * stringSize + 20 - result.x - result.width;
+                        }
+                    }
+                    if (y < result.y){
+                        result.height += result.y - y;
+                        result.y = y;
+                    } else {
+                        if (y + 80 > result.y + result.height){
+                            result.height += y + 80 - result.y - result.height;
+                        }
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     public AmrDiagram clone() {
@@ -115,10 +151,10 @@ public class AmrDiagram {
         }
     }
 
-    public String toSvg(Graphics g, int height, int width){
+    public String toSvg(int height, int width){
         StringBuilder result = new StringBuilder("<svg height=\"" + height + "\" width=\"" + width + "\">\n");
         for (AmrObject object : objects) {
-            result.append(object.toSvg(g));
+            result.append(object.toSvg());
         }
         result.append("</svg>\n");
         return result.toString();

@@ -47,7 +47,7 @@ public class AmrObject {
         return new Point(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height);
     }
 
-    public String toSvg(Graphics g){
+    public String toSvg(){
         return "";
     }
 

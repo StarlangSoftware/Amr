@@ -46,7 +46,7 @@ public class AmrConnectionObject extends AmrObject {
         this.setBoundingBoxSize(Math.abs(from.getCenter().x - to.getCenter().x), Math.abs(from.getCenter().y - to.getCenter().y));
     }
 
-    private void printArrow(Graphics g, int x1, int y1, int x2, int y2){
+    private void calculatePoints(int x1, int y1, int x2, int y2, int[] xpoints, int[] ypoints){
         int d = 10;
         int h = 5;
         int dx = x2 - x1, dy = y2 - y1;
@@ -59,8 +59,18 @@ public class AmrConnectionObject extends AmrObject {
         x = xn*cos - yn*sin + x1;
         yn = xn*sin + yn*cos + y1;
         xn = x;
-        int[] xpoints = {x2, (int) xm, (int) xn};
-        int[] ypoints = {y2, (int) ym, (int) yn};
+        xpoints[1] = (int) xm;
+        xpoints[2] = (int) xn;
+        ypoints[1] = (int) ym;
+        ypoints[2] = (int) yn;
+    }
+
+    private void printArrow(Graphics g, int x1, int y1, int x2, int y2){
+        int[] xpoints = new int[3];
+        int[] ypoints = new int[3];
+        xpoints[0] = x2;
+        ypoints[0] = y2;
+        calculatePoints(x1, y1, x2, y2, xpoints, ypoints);
         g.fillPolygon(xpoints, ypoints, 3);
     }
 
@@ -77,14 +87,20 @@ public class AmrConnectionObject extends AmrObject {
         printArrow(g, x1, y1, x2, y2);
     }
 
-    public String toSvg(Graphics g){
+    public String toSvg(){
         String result = "";
-        int x1 = from.getCenter().x;
-        int y1 = from.getCenter().y + from.boundingBox.height;
-        int x2 = to.getCenter().x;
-        int y2 = to.getCenter().y - to.boundingBox.height;
+        int x1 = from.word.getPosition().x;
+        int y1 = from.word.getPosition().y + 45;
+        int x2 = to.word.getPosition().x;
+        int y2 = to.word.getPosition().y + 5;
         result += "<text x=\"" + ((x1 + x2) / 2) + "\" y=\"" + ((y1 + y2) / 2) + "\">" + with + "</text>\n";
         result += "<line x1=\"" + x1 + "\" y1=\"" + y1 + "\" x2=\"" + x2 + "\" y2=\"" + y2 + "\" style=\"stroke:black;stroke-width:2\"/>\n";
+        int[] xpoints = new int[3];
+        int[] ypoints = new int[3];
+        xpoints[0] = x2;
+        ypoints[0] = y2;
+        calculatePoints(x1, y1, x2, y2, xpoints, ypoints);
+        result += "<polygon points=\"" + xpoints[0] +"," + ypoints[0] + " " + xpoints[1] + "," + ypoints[1] + " " + xpoints[2] + "," + ypoints[2] + "\" style=\"fill:lime;stroke:black;stroke-width:3\" />";
         return result;
     }
 

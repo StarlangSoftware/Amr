@@ -28,10 +28,6 @@ public class AmrPanel extends DiagramPanel {
         }
     }
 
-    public String toSvg() {
-        return diagram.toSvg(getGraphics(), getHeight(), getWidth());
-    }
-
     public void mouseReleased(MouseEvent e) {
         AmrObject toObject;
         super.mouseReleased(e);

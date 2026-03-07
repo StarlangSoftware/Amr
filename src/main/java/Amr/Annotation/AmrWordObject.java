@@ -49,11 +49,11 @@ public class AmrWordObject extends AmrObject {
         setBoundingBoxSize(stringSize + 10, OVAL_HEIGHT);
     }
 
-    public String toSvg(Graphics g){
+    public String toSvg(){
         String result = "";
-        int stringSize = g.getFontMetrics().stringWidth(word.getName());
-        result += "<ellipse rx=\"" + (stringSize + 10) + "\" ry=\"" + OVAL_HEIGHT + "\" cx=\"" + getCenter().x + "\" cy=\"" + getCenter().y + "\" style=\"fill:none;stroke:black;stroke-width:2\" />\n";
-        result += "<text x=\"" + (word.getPosition().x + 5) + "\" y=\"" + (word.getPosition().y + OVAL_HEIGHT / 2 + 5) + "\">" + word.getName() + "</text>\n";
+        int stringSize = (int) (7.3 * word.getName().length());
+        result += "<ellipse rx=\"" + (stringSize / 2 + 10) + "\" ry=\"" + (OVAL_HEIGHT / 2) + "\" cx=\"" + (word.getPosition().x + 5) + "\" cy=\"" + (word.getPosition().y + OVAL_HEIGHT / 2 + 5) + "\" style=\"fill:none;stroke:black;stroke-width:2\" />\n";
+        result += "<text x=\"" + (word.getPosition().x - stringSize / 2 + 5) + "\" y=\"" + (word.getPosition().y + OVAL_HEIGHT / 2 + 10) + "\">" + word.getName() + "</text>\n";
         return result;
     }
 
