@@ -28,6 +28,10 @@ public class AmrPanel extends DiagramPanel {
         }
     }
 
+    public String toSvg() {
+        return diagram.toSvg(getGraphics(), getHeight(), getWidth());
+    }
+
     public void mouseReleased(MouseEvent e) {
         AmrObject toObject;
         super.mouseReleased(e);
@@ -38,7 +42,7 @@ public class AmrPanel extends DiagramPanel {
             if (toObject instanceof AmrWordObject && !fromObject.equals(toObject)) {
                 String with = JOptionPane.showInputDialog(null, "Enter Connection Name", "");
                 undoList.add(diagram.clone());
-                diagram.addConnection((AmrWordObject)fromObject, (AmrWordObject)toObject, with);
+                diagram.addConnection((AmrWordObject) fromObject, (AmrWordObject) toObject, with);
                 save();
                 this.repaint();
             }
@@ -68,7 +72,7 @@ public class AmrPanel extends DiagramPanel {
                 }
             }
         }
-        if (lastCommand != null && lastCommand != EnumCommand.EMPTY){
+        if (lastCommand != null && lastCommand != EnumCommand.EMPTY) {
             if (lastCommand == EnumCommand.WORD) {
                 String wordName = JOptionPane.showInputDialog(null, "Enter Use Case Name", "UML Editor", JOptionPane.QUESTION_MESSAGE);
                 if (wordName != null) {

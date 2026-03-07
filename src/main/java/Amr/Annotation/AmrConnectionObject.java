@@ -77,6 +77,17 @@ public class AmrConnectionObject extends AmrObject {
         printArrow(g, x1, y1, x2, y2);
     }
 
+    public String toSvg(Graphics g){
+        String result = "";
+        int x1 = from.getCenter().x;
+        int y1 = from.getCenter().y + from.boundingBox.height;
+        int x2 = to.getCenter().x;
+        int y2 = to.getCenter().y - to.boundingBox.height;
+        result += "<text x=\"" + ((x1 + x2) / 2) + "\" y=\"" + ((y1 + y2) / 2) + "\">" + with + "</text>\n";
+        result += "<line x1=\"" + x1 + "\" y1=\"" + y1 + "\" x2=\"" + x2 + "\" y2=\"" + y2 + "\" style=\"stroke:black;stroke-width:2\"/>\n";
+        return result;
+    }
+
     public String toString(){
         return from.getName() + " to " + to.getName();
     }

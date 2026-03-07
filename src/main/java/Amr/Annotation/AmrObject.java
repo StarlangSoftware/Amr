@@ -47,6 +47,10 @@ public class AmrObject {
         return new Point(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height);
     }
 
+    public String toSvg(Graphics g){
+        return "";
+    }
+
     public void paint(Graphics g){
         if (colored){
             g.setColor(Color.RED);

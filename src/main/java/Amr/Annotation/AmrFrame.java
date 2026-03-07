@@ -268,19 +268,19 @@ public class AmrFrame extends JFrame implements ActionListener {
         itemExport.addActionListener(e -> {
             String filename;
             final JFileChooser fcoutput = new JFileChooser();
-            fcoutput.setDialogTitle("Select output jpg file");
+            fcoutput.setDialogTitle("Select output png file");
             fcoutput.setDialogType(JFileChooser.SAVE_DIALOG);
             int returnVal = fcoutput.showSaveDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                DiagramPanel current;
-                current = (DiagramPanel) diagramPane.getSelectedComponent();
+                AmrPanel current;
+                current = (AmrPanel) diagramPane.getSelectedComponent();
                 filename = fcoutput.getSelectedFile().getAbsolutePath();
-                BufferedImage image = new BufferedImage(current.getWidth(), current.getHeight(), BufferedImage.TYPE_INT_RGB);
+                BufferedImage image = new BufferedImage(current.getWidth(), current.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
                 Graphics2D g2 = image.createGraphics();
                 g2.fillRect(0, 0, current.getWidth(), current.getHeight());
                 current.paint(g2);
                 try {
-                    ImageIO.write(image, "jpeg", new File(filename));
+                    ImageIO.write(image, "png", new File(filename));
                 } catch (IOException ioException) {
                     System.out.println("Output file can not be opened");
                 }

@@ -115,6 +115,15 @@ public class AmrDiagram {
         }
     }
 
+    public String toSvg(Graphics g, int height, int width){
+        StringBuilder result = new StringBuilder("<svg height=\"" + height + "\" width=\"" + width + "\">\n");
+        for (AmrObject object : objects) {
+            result.append(object.toSvg(g));
+        }
+        result.append("</svg>\n");
+        return result.toString();
+    }
+
     public void selectAll() {
         int i;
         for (i = 0; i < objects.size(); i++) {
