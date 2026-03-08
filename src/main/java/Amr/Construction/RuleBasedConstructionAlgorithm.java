@@ -8,7 +8,7 @@ import WordNet.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class RuleBasedConstructionAlgorithm implements AmrConstructionAlgorithm{
+public class RuleBasedConstructionAlgorithm extends AmrConstructionAlgorithm{
     private final WordNet wordNet;
     private AnnotatedSentence sentence;
     
@@ -448,7 +448,7 @@ public class RuleBasedConstructionAlgorithm implements AmrConstructionAlgorithm{
     }
 
     @Override
-    public ArrayList<String> constructAmr(AnnotatedSentence sentence) {
+    public ArrayList<String> constructExcelAmr(AnnotatedSentence sentence) {
         ArrayList<String> output = new ArrayList<>();
         this.sentence = sentence;
         boolean[] done = new boolean[sentence.wordCount()];

@@ -1,6 +1,5 @@
 package Amr.Annotation;
 
-import Amr.Construction.RuleBasedConstructionAlgorithm;
 import AnnotatedSentence.AnnotatedSentence;
 import WordNet.WordNet;
 
@@ -13,15 +12,11 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Scanner;
 
 public class AmrFrame extends JFrame implements ActionListener {
 
@@ -372,46 +367,6 @@ public class AmrFrame extends JFrame implements ActionListener {
         }
     }
 
-    private void saveAmr(ArrayList<String> items, String fileName){
-        int startX = 750, startY = 100;
-        String[] lastParent = new String[10];
-        int[] lastX = new int[10];
-        int[] childCount = new int[10];
-        HashSet<String> words = new HashSet<>();
-        try {
-            PrintWriter output = new PrintWriter(fileName);
-            output.println("<Amr>");
-            String line = items.get(0);
-            output.println("<Word name=\"" + line + "\" positionX=\"" + startX + "\" positionY=\"" + startY + "\"/>");
-            words.add(line);
-            lastParent[0] = line;
-            childCount[0] = 0;
-            lastX[0] = startX;
-            for (int j = 1; j < items.size(); j++){
-                line = items.get(j);
-                int tabCount = 0, i = 0;
-                while (line.charAt(i) == '\t'){
-                    tabCount++;
-                    i++;
-                }
-                line = line.substring(tabCount);
-                lastParent[tabCount] = line;
-                childCount[tabCount] = 0;
-                lastX[tabCount] = lastX[tabCount - 1] + (childCount[tabCount - 1] - 1) * 100;
-                if (!words.contains(line)){
-                    output.println("<Word name=\"" + line + "\" positionX=\"" + lastX[tabCount] + "\" positionY=\"" + (startY + 100 * tabCount) + "\"/>");
-                    words.add(line);
-                }
-                output.println("<Connection from=\"" + lastParent[tabCount - 1] + "\" to=\"" + line + "\"/>");
-                childCount[tabCount - 1]++;
-            }
-            output.println("</Amr>");
-            output.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private String getNextAnnotatedSentence(DiagramPanel current, int count){
         String fileName;
         if (subFolder.equals("true")){
@@ -446,13 +401,6 @@ public class AmrFrame extends JFrame implements ActionListener {
             diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
             getAnnotatedSentence(current);
             repaint();
-        } else {
-            String nextSentence = getNextAnnotatedSentence(current, count);
-            if (nextSentence != null){
-                ArrayList<String> amr = new RuleBasedConstructionAlgorithm(wordNet).constructAmr(new AnnotatedSentence(new File(nextSentence)));
-                String outputFileName = getAmrOutputFileName(amr.get(0));
-                saveAmr((ArrayList<String>) amr.subList(1, amr.size() - 1), outputFileName);
-            }
         }
     }
 
@@ -462,62 +410,7 @@ public class AmrFrame extends JFrame implements ActionListener {
             diagramPane.setTitleAt(diagramPane.getSelectedIndex(), current.getFileName());
             getAnnotatedSentence(current);
             repaint();
-        } else {
-            String previousSentence = getPreviousAnnotatedSentence(current, count);
-            if (previousSentence != null){
-                ArrayList<String> amr = new RuleBasedConstructionAlgorithm(wordNet).constructAmr(new AnnotatedSentence(new File(previousSentence)));
-                String outputFileName = getAmrOutputFileName(amr.get(0));
-                saveAmr((ArrayList<String>) amr.subList(1, amr.size() - 1), outputFileName);
-            }
         }
     }
 
-    private String getAmrOutputFileName(String line){
-        String folder = ".";
-        if (line.contains("/")){
-            folder = line.substring(0, line.indexOf("/"));
-            File file = new File("./" + folder);
-            if (!file.exists()){
-                file.mkdir();
-            }
-            line = line.substring(line.indexOf("/") + 1);
-        }
-        return folder + "/" + line;
-    }
-
-    public void prepareData(String fileName) throws FileNotFoundException {
-        ArrayList<String> lines = new ArrayList<>();
-        String outputFileName = null;
-        boolean firstLine = false, skipFile = false;
-        Scanner input = new Scanner(new File(fileName));
-        while (input.hasNext()){
-            String line = input.nextLine();
-            if (line.matches(".*[0-9]+\\.(train|test|dev)")){
-                firstLine = true;
-                skipFile = false;
-                outputFileName = getAmrOutputFileName(line);
-                lines = new ArrayList<>();
-            } else {
-                if (line.isEmpty()){
-                    if (!skipFile){
-                        saveAmr(lines, outputFileName);
-                    }
-                } else {
-                    if (firstLine){
-                        if (line.startsWith("\t")){
-                            skipFile = true;
-                        } else {
-                            lines.add(line);
-                        }
-                        firstLine = false;
-                    } else {
-                        if (!skipFile){
-                            lines.add(line);
-                        }
-                    }
-                }
-            }
-        }
-        saveAmr(lines, outputFileName);
-    }
 }
