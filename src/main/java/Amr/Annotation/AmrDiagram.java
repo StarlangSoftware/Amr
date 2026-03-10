@@ -4,7 +4,6 @@ import Amr.Corpus.AmrConnection;
 import Amr.Corpus.AmrSentence;
 import Amr.Corpus.AmrWord;
 import Corpus.FileDescription;
-import javafx.geometry.BoundingBox;
 
 import java.awt.*;
 import java.io.FileWriter;

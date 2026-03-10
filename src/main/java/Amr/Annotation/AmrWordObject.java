@@ -52,7 +52,7 @@ public class AmrWordObject extends AmrObject {
     public String toSvg(){
         String result = "";
         int stringSize = (int) (7.3 * word.getName().length());
-        result += "<ellipse rx=\"" + (stringSize / 2 + 10) + "\" ry=\"" + (OVAL_HEIGHT / 2) + "\" cx=\"" + (word.getPosition().x + 5) + "\" cy=\"" + (word.getPosition().y + OVAL_HEIGHT / 2 + 5) + "\" style=\"fill:none;stroke:black;stroke-width:2\" />\n";
+        result += "<ellipse rx=\"" + (stringSize / 2 + 10) + "\" ry=\"" + (OVAL_HEIGHT / 2) + "\" cx=\"" + (word.getPosition().x + 5) + "\" cy=\"" + (word.getPosition().y + OVAL_HEIGHT / 2 + 5) + "\"/>\n";
         result += "<text x=\"" + (word.getPosition().x - stringSize / 2 + 5) + "\" y=\"" + (word.getPosition().y + OVAL_HEIGHT / 2 + 10) + "\">" + word.getName() + "</text>\n";
         return result;
     }

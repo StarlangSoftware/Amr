@@ -94,13 +94,13 @@ public class AmrConnectionObject extends AmrObject {
         int x2 = to.word.getPosition().x;
         int y2 = to.word.getPosition().y + 5;
         result += "<text x=\"" + ((x1 + x2) / 2) + "\" y=\"" + ((y1 + y2) / 2) + "\">" + with + "</text>\n";
-        result += "<line x1=\"" + x1 + "\" y1=\"" + y1 + "\" x2=\"" + x2 + "\" y2=\"" + y2 + "\" style=\"stroke:black;stroke-width:2\"/>\n";
+        result += "<line x1=\"" + x1 + "\" y1=\"" + y1 + "\" x2=\"" + x2 + "\" y2=\"" + y2 + "\"/>\n";
         int[] xpoints = new int[3];
         int[] ypoints = new int[3];
         xpoints[0] = x2;
         ypoints[0] = y2;
         calculatePoints(x1, y1, x2, y2, xpoints, ypoints);
-        result += "<polygon points=\"" + xpoints[0] +"," + ypoints[0] + " " + xpoints[1] + "," + ypoints[1] + " " + xpoints[2] + "," + ypoints[2] + "\" style=\"fill:lime;stroke:black;stroke-width:3\" />";
+        result += "<polygon points=\"" + xpoints[0] +"," + ypoints[0] + " " + xpoints[1] + "," + ypoints[1] + " " + xpoints[2] + "," + ypoints[2] + "\"/>";
         return result;
     }
 
