@@ -129,14 +129,23 @@ public class AmrDiagram {
 
     public AmrObject getNearestAmrObjectAtPos(Point p) {
         int i;
-        int minDistance = Integer.MAX_VALUE;
+        double minDistance = Integer.MAX_VALUE;
         AmrObject nearestObject = null;
         for (i = 0; i < objects.size(); i++) {
-            if (objects.get(i).contains(p)) {
-                int distance = (int)((objects.get(i).boundingBox.getCenterX() - p.x) * (objects.get(i).boundingBox.getCenterX() - p.x) + (objects.get(i).boundingBox.getCenterY() - p.y) * (objects.get(i).boundingBox.getCenterY() - p.y));
-                if  (distance < minDistance) {
-                    minDistance = distance;
-                    nearestObject = objects.get(i);
+            if (objects.get(i) instanceof AmrWordObject && objects.get(i).contains(p)) {
+                nearestObject = objects.get(i);
+                break;
+            } else {
+                if (objects.get(i) instanceof AmrConnectionObject && objects.get(i).contains(p)){
+                    int x1 = objects.get(i).boundingBox.x;
+                    int y1 = objects.get(i).boundingBox.y;
+                    double m = objects.get(i).boundingBox.height / (0.0 + objects.get(i).boundingBox.width);
+                    double n = y1 - m * x1;
+                    double distance = Math.abs(m * p.x + n - p.y) / Math.sqrt(m * m + 1);
+                    if (distance < minDistance){
+                        minDistance = distance;
+                        nearestObject = objects.get(i);
+                    }
                 }
             }
         }

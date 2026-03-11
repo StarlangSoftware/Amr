@@ -15,9 +15,13 @@ public class AmrConnectionObject extends AmrObject {
         this.to = to;
         this.with = with;
         int upperLeftX, upperLeftY;
-        upperLeftX = Math.min(from.getCenter().x, to.getCenter().x);
-        upperLeftY = Math.min(from.getCenter().y, to.getCenter().y);
-        this.boundingBox = new Rectangle(upperLeftX, upperLeftY, Math.abs(from.getCenter().x - to.getCenter().x), Math.abs(from.getCenter().y - to.getCenter().y));
+        int x1 = from.getCenter().x;
+        int y1 = from.getCenter().y + from.boundingBox.height / 2;
+        int x2 = to.getCenter().x;
+        int y2 = to.getCenter().y - to.boundingBox.height / 2;
+        upperLeftX = Math.min(x1, x2);
+        upperLeftY = Math.min(y1, y2);
+        this.boundingBox = new Rectangle(upperLeftX, upperLeftY, Math.abs(x1 - x2), Math.abs(y1 - y2));
     }
 
     public String with(){

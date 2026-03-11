@@ -61,7 +61,7 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
         if (lastCommand != null && lastCommand == EnumCommand.EMPTY){
             Point toPoint = e.getPoint();
             if (diagram.getNearestAmrObjectAtPos(fromPoint) == null){
-                selectedArea = new Rectangle(fromPoint.x, fromPoint.y, Math.abs(toPoint.x - fromPoint.x), Math.abs(toPoint.y - fromPoint.y));
+                selectedArea = new Rectangle(Math.min(fromPoint.x, toPoint.x), Math.min(fromPoint.y, toPoint.y), Math.abs(toPoint.x - fromPoint.x), Math.abs(toPoint.y - fromPoint.y));
                 diagram.selectArea(selectedArea);
             } else {
                 if (!moved){
@@ -80,10 +80,11 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
         if (lastCommand != null && lastCommand == EnumCommand.EMPTY){
             AmrObject current;
             current = diagram.getNearestAmrObjectAtPos(e.getPoint());
+            if (!e.isShiftDown() && !e.isControlDown() && !e.isAltDown() && !e.isMetaDown()){
+                diagram.deselectAll();
+            }
             if (current != null){
                 current.select(!current.isSelected());
-            } else {
-                diagram.deselectAll();
             }
             this.repaint();            
         }
