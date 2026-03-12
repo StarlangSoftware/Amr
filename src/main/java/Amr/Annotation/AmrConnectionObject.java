@@ -45,6 +45,14 @@ public class AmrConnectionObject extends AmrObject {
         }
     }
 
+    public boolean contains(Point p){
+        int x1 = from.getCenter().x;
+        int y1 = from.getCenter().y + from.boundingBox.height / 2;
+        int x2 = to.getCenter().x;
+        int y2 = to.getCenter().y - to.boundingBox.height / 2;
+        return p.x > Math.min(x1, x2) && p.x < Math.max(x1, x2) && p.y > Math.min(y1, y2) && p.y < Math.max(y1, y2);
+    }
+
     public void move(int deltaX, int deltaY){
         this.boundingBox = new Rectangle(from.getCenter());
         this.setBoundingBoxSize(Math.abs(from.getCenter().x - to.getCenter().x), Math.abs(from.getCenter().y - to.getCenter().y));
@@ -54,14 +62,14 @@ public class AmrConnectionObject extends AmrObject {
         int d = 10;
         int h = 5;
         int dx = x2 - x1, dy = y2 - y1;
-        double D = Math.sqrt(dx*dx + dy*dy);
+        double D = Math.sqrt(dx * dx + dy * dy);
         double xm = D - d, xn = xm, ym = h, yn = -h, x;
         double sin = dy / D, cos = dx / D;
-        x = xm*cos - ym*sin + x1;
-        ym = xm*sin + ym*cos + y1;
+        x = xm * cos - ym * sin + x1;
+        ym = xm * sin + ym * cos + y1;
         xm = x;
-        x = xn*cos - yn*sin + x1;
-        yn = xn*sin + yn*cos + y1;
+        x = xn * cos - yn * sin + x1;
+        yn = xn * sin + yn * cos + y1;
         xn = x;
         xpoints[1] = (int) xm;
         xpoints[2] = (int) xn;
@@ -81,11 +89,17 @@ public class AmrConnectionObject extends AmrObject {
     public void paint(Graphics g){
         super.paint(g);
         Graphics2D g2 = (Graphics2D)g;
-        g2.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1.0f, null, 0.0f));
         int x1 = from.getCenter().x;
         int y1 = from.getCenter().y + from.boundingBox.height / 2;
         int x2 = to.getCenter().x;
         int y2 = to.getCenter().y - to.boundingBox.height / 2;
+        if (isSelected()){
+            g.drawOval(x1 - 2, y1 - 2, 4, 4);
+            g.drawOval(x1 - 2, y2 - 2, 4, 4);
+            g.drawOval(x2 - 2, y1 - 2, 4, 4);
+            g.drawOval(x2 - 2, y2 - 2, 4, 4);
+        }
+        g2.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1.0f, null, 0.0f));
         g.drawString(with, (x1 + x2) / 2, (y1 + y2) / 2);
         g.drawLine(x1, y1, x2, y2);
         printArrow(g, x1, y1, x2, y2);

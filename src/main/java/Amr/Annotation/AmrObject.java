@@ -39,14 +39,6 @@ public class AmrObject {
         return new Point(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height / 2);
     }
 
-    public Point getTop(){
-        return new Point(boundingBox.x + boundingBox.width / 2, boundingBox.y);
-    }
-
-    public Point getBottom(){
-        return new Point(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height);
-    }
-
     public String toSvg(){
         return "";
     }
@@ -57,12 +49,6 @@ public class AmrObject {
         } else {
             g.setColor(Color.BLACK);
         }        
-        if (isSelected()){
-            g.drawOval(boundingBox.x - 2, boundingBox.y - 2, 4, 4);
-            g.drawOval(boundingBox.x - 2, boundingBox.y + boundingBox.height - 2, 4, 4);
-            g.drawOval(boundingBox.x + boundingBox.width - 2, boundingBox.y - 2, 4, 4);
-            g.drawOval(boundingBox.x + boundingBox.width - 2, boundingBox.y + boundingBox.height - 2, 4, 4);
-        }
     }
 
 }

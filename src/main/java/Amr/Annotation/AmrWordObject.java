@@ -42,7 +42,13 @@ public class AmrWordObject extends AmrObject {
     }
 
     public void paint(Graphics g){
-        super.paint(g);        
+        super.paint(g);
+        if (isSelected()){
+            g.drawOval(boundingBox.x - 2, boundingBox.y - 2, 4, 4);
+            g.drawOval(boundingBox.x - 2, boundingBox.y + boundingBox.height - 2, 4, 4);
+            g.drawOval(boundingBox.x + boundingBox.width - 2, boundingBox.y - 2, 4, 4);
+            g.drawOval(boundingBox.x + boundingBox.width - 2, boundingBox.y + boundingBox.height - 2, 4, 4);
+        }
         int stringSize = g.getFontMetrics().stringWidth(word.getName());
         g.drawOval(word.getPosition().x, word.getPosition().y, stringSize + 10, OVAL_HEIGHT);
         g.drawString(word.getName(), word.getPosition().x + 5, word.getPosition().y + OVAL_HEIGHT / 2 + 5);

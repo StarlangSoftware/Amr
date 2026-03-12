@@ -151,6 +151,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         JMenuItem itemDelete = addMenuItem(editMenu, "Delete", KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK));
         JMenuItem itemSelectAll = addMenuItem(editMenu, "Select All", KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
         diagramPane = new JTabbedPane();
+        diagramPane.setFocusable(false);
         disableMenu();
         add(diagramPane, BorderLayout.CENTER);
         final JToolBar ToolBar = new JToolBar("ToolBox");
@@ -191,7 +192,9 @@ public class AmrFrame extends JFrame implements ActionListener {
         itemDiagram.addActionListener(e -> {
             AmrPanel newPanel;
             newPanel = new AmrPanel(".", "0000.train");
-            diagramPane.add(newPanel, "Diagram", diagramPane.getSelectedIndex() + 1);
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setViewportView(newPanel);
+            diagramPane.add(scrollPane, "Diagram", diagramPane.getSelectedIndex() + 1);
             enableMenu();
         });
         itemClose.addActionListener(e -> {
@@ -310,7 +313,9 @@ public class AmrFrame extends JFrame implements ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 AmrPanel newPanel;
                 newPanel = new AmrPanel(fcinput.getSelectedFile().getParent(), fcinput.getSelectedFile().getName());
-                diagramPane.add(newPanel, fcinput.getSelectedFile().getName(), diagramPane.getSelectedIndex() + 1);
+                JScrollPane scrollPane = new JScrollPane();
+                scrollPane.setViewportView(newPanel);
+                diagramPane.add(scrollPane, fcinput.getSelectedFile().getName(), diagramPane.getSelectedIndex() + 1);
                 getAnnotatedSentence(newPanel);
                 enableMenu();
             }
@@ -326,7 +331,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         DiagramPanel current;
         String cmd = e.getActionCommand();
         EnumCommand lastCommand;
-        current = (DiagramPanel) diagramPane.getSelectedComponent();
+        current = (DiagramPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
         if (EMPTY.equals(cmd)) {
             lastCommand = EnumCommand.EMPTY;
             current.setCommand(lastCommand);
