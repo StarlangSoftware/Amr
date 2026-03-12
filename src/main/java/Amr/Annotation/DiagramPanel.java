@@ -146,6 +146,8 @@ public class DiagramPanel extends JPanel  implements MouseListener, MouseMotionL
 
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
+        Rectangle box = diagram.getBoundingBox();
+        setPreferredSize(new Dimension(box.width + box.x, box.height + box.y));
         if (selectedArea != null){
             g.drawRect(selectedArea.x, selectedArea.y, selectedArea.width, selectedArea.height);
         }
