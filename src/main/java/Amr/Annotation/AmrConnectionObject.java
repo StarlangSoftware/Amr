@@ -24,7 +24,7 @@ public class AmrConnectionObject extends AmrObject {
         this.boundingBox = new Rectangle(upperLeftX, upperLeftY, Math.abs(x1 - x2), Math.abs(y1 - y2));
     }
 
-    public String with(){
+    public String getWith(){
         return with;
     }
 

@@ -43,7 +43,6 @@ public class AmrFrame extends JFrame implements ActionListener {
     protected JLabel infoBottom;
     protected JPanel bottom;
     private AnnotatedSentence sentence;
-    private final WordNet wordNet;
 
     private JMenuItem addMenuItem(JMenu menu, String name, KeyStroke stroke) {
         JMenuItem newItem;
@@ -131,7 +130,6 @@ public class AmrFrame extends JFrame implements ActionListener {
         JMenu newMenu;
         menu = new JMenuBar();
         setJMenuBar(menu);
-        wordNet = new WordNet();
         fileMenu = new JMenu("File");
         menu.add(fileMenu);
         newMenu = new JMenu("New");

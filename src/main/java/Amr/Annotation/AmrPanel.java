@@ -59,7 +59,7 @@ public class AmrPanel extends DiagramPanel {
                 }
             }
             if (current instanceof AmrConnectionObject) {
-                String with = JOptionPane.showInputDialog(null, "Enter Connection Name", ((AmrConnectionObject) current).with());
+                String with = JOptionPane.showInputDialog(null, "Enter Connection Name", ((AmrConnectionObject) current).getWith());
                 if (with != null) {
                     undoList.add(diagram.clone());
                     ((AmrConnectionObject) current).setWith(with);
