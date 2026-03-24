@@ -180,7 +180,7 @@ public class AmrFrame extends JFrame implements ActionListener {
                     ToolBar.getComponent(i).setVisible(true);
                 }
                 itemPaste.setEnabled(true);
-                diagramPane.getSelectedComponent().repaint();
+                ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView().repaint();
             } else {
                 for (i = 0; i < 9; i++) {
                     ToolBar.getComponent(i).setVisible(false);
@@ -209,7 +209,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         });
         itemUndo.addActionListener(e -> {
             DiagramPanel current;
-            current = (DiagramPanel) diagramPane.getSelectedComponent();
+            current = (DiagramPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
             if (current != null) {
                 current.undo();
                 current.repaint();
@@ -217,7 +217,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         });
         itemSelectAll.addActionListener(e -> {
             DiagramPanel current;
-            current = (DiagramPanel) diagramPane.getSelectedComponent();
+            current = (DiagramPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
             if (current != null) {
                 current.getDiagram().selectAll();
                 current.repaint();
@@ -225,14 +225,14 @@ public class AmrFrame extends JFrame implements ActionListener {
         });
         itemCopy.addActionListener(e -> {
             DiagramPanel current;
-            current = (DiagramPanel) diagramPane.getSelectedComponent();
+            current = (DiagramPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
             if (current != null) {
                 copyList = current.getDiagram().copyAll();
             }
         });
         itemCut.addActionListener(e -> {
             DiagramPanel current;
-            current = (DiagramPanel) diagramPane.getSelectedComponent();
+            current = (DiagramPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
             if (current != null) {
                 copyList = current.getDiagram().copyAll();
                 current.undoList.add(current.diagram.clone());
@@ -243,7 +243,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         });
         itemPaste.addActionListener(e -> {
             DiagramPanel current;
-            current = (DiagramPanel) diagramPane.getSelectedComponent();
+            current = (DiagramPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
             if (current != null) {
                 current.undoList.add(current.diagram.clone());
                 current.getDiagram().pasteObjects(copyList);
@@ -253,7 +253,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         });
         itemDelete.addActionListener(e -> {
             DiagramPanel current;
-            current = (DiagramPanel) diagramPane.getSelectedComponent();
+            current = (DiagramPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
             if (current != null) {
                 current.undoList.add(current.diagram.clone());
                 current.getDiagram().deleteSelected();
@@ -269,7 +269,7 @@ public class AmrFrame extends JFrame implements ActionListener {
             int returnVal = fcoutput.showSaveDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 AmrPanel current;
-                current = (AmrPanel) diagramPane.getSelectedComponent();
+                current = (AmrPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
                 filename = fcoutput.getSelectedFile().getAbsolutePath();
                 BufferedImage image = new BufferedImage(current.getWidth(), current.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
                 Graphics2D g2 = image.createGraphics();
@@ -285,7 +285,7 @@ public class AmrFrame extends JFrame implements ActionListener {
         });
         itemSave.addActionListener(e -> {
             DiagramPanel current;
-            current = (DiagramPanel) diagramPane.getSelectedComponent();
+            current = (DiagramPanel) ((JScrollPane) diagramPane.getSelectedComponent()).getViewport().getView();
             if (current.getFileName() == null) {
                 final JFileChooser fcoutput = new JFileChooser();
                 fcoutput.setDialogTitle("Select output file");
