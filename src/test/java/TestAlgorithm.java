@@ -69,14 +69,14 @@ public class TestAlgorithm {
                 "\t\taydın:wiki\n" +
                 "\t\t2/ben\n" +
                 "\t3/çiçek:ARG1\n", algorithm.toString(sentence6));
-        AnnotatedSentence sentence7 = new AnnotatedSentence(new File("sentences/0007.test"));
-        assertEquals("0007.test\tŞu anahtarı hanginize vereyim ?\n" +
-                "4/ver\n" +
-                "\tben:ARG0\n" +
-                "\t2/anahtar:ARG1\n" +
-                "\t\t\t\t1/şu\n" +
-                "\t3/hangi:ARG2\n" +
-                "\t\tbiz:poss\n", algorithm.toString(sentence7));
+        AnnotatedSentence sentence7 = new AnnotatedSentence(new File("sentences/0534.test"));
+        assertEquals("0534.test\tİlaç hastaya göre seçilmelidir .\n" +
+                "öner\n" +
+                "\t\t4/seç\n" +
+                "\t\to:ARG0\n" +
+                "\t\t1/ilaç:ARG1\n" +
+                "\t\t\t\t2/hasta\n" +
+                "\t\t\t\t\t\t3/göre\n", algorithm.toString(sentence7));
         AnnotatedSentence sentence8 = new AnnotatedSentence(new File("sentences/0008.test"));
         assertEquals("0008.test\tDışarıda bir köpek var .\n" +
                 "4/var\n" +
@@ -100,5 +100,18 @@ public class TestAlgorithm {
                 "\t\t\t1/londra:op1\n" +
                 "\t\tlondra:wiki\n" +
                 "\t\t3/mi\n", algorithm.toString(sentence10));
+        AnnotatedSentence sentence11 = new AnnotatedSentence(new File("sentences/0027.test"));
+        assertEquals("0027.test\tGidebilirim de .\n" +
+                "mümkün\n" +
+                "\t\t1/git\n" +
+                "\t\tben:ARG0\n" +
+                "\t\t\t\t2/de\n", algorithm.toString(sentence11));
+        AnnotatedSentence sentence12 = new AnnotatedSentence(new File("sentences/0392.test"));
+        assertEquals("0392.test\tHer gün camları sildiriyorlar .\n" +
+                "yap\n" +
+                "\t\t4/sil\n" +
+                "\t\tonlar:ARG0\n" +
+                "\t\t\t\t1/her 2/gün\n" +
+                "\t\t3/cam:ARG1\n", algorithm.toString(sentence12));
     }
 }
