@@ -190,6 +190,45 @@ public class RuleBasedConstructionAlgorithm extends AmrConstructionAlgorithm {
         }
     }
 
+    private int getPreliminaryExtra(AnnotatedWord current, int index, String[] added){
+        added[0] = "";
+        if (current.getParse().containsTag(MorphologicalTag.CONDITIONAL)) {
+            added[0] = ":cond";
+        }
+        for (int i = 0; i < sentence.wordCount(); i++) {
+            AnnotatedWord word = (AnnotatedWord) sentence.getWord(i);
+            if (word.getUniversalDependency() != null && word.getUniversalDependency().to() == index + 1) {
+                switch (word.getParse().getWord().getName()) {
+                    case "kadar":
+                        added[0] = ":extent";
+                        return i;
+                    case "rağmen":
+                    case "karşın":
+                    case "karşılık":
+                        added[0] = ":concession";
+                        return i;
+                    case "için":
+                    case "sayesinde":
+                    case "dolayı":
+                        added[0] = ":cause";
+                        return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private void addDefaultCase(boolean[] done, int tabCount, ArrayList<String> output, String defaultString, String extraAdded, String added, int addedIndex){
+        if (!extraAdded.isEmpty()) {
+            output.add(withTabs(tabCount, defaultString + extraAdded));
+        } else {
+            output.add(withTabs(tabCount, defaultString + added));
+            if (addedIndex != -1) {
+                done[addedIndex] = true;
+            }
+        }
+    }
+
     private void printAmrRecursively(boolean[] done, int index, int tabCount, ArrayList<String> output, String relation, String semantic, WordNet wordNet, String extraAdded) {
         int currentWordIndex = index;
         if (done[index]) {
@@ -210,34 +249,8 @@ public class RuleBasedConstructionAlgorithm extends AmrConstructionAlgorithm {
         if (current.isPunctuation()) {
             return;
         }
-        String added = "";
-        int addedIndex = -1;
-        if (current.getParse().containsTag(MorphologicalTag.CONDITIONAL)) {
-            added = ":cond";
-        }
-        for (int i = 0; i < sentence.wordCount(); i++) {
-            AnnotatedWord word = (AnnotatedWord) sentence.getWord(i);
-            if (word.getUniversalDependency() != null && word.getUniversalDependency().to() == index + 1) {
-                switch (word.getParse().getWord().getName()) {
-                    case "kadar":
-                        added = ":extent";
-                        addedIndex = i;
-                        break;
-                    case "rağmen":
-                    case "karşın":
-                    case "karşılık":
-                        added = ":concession";
-                        addedIndex = i;
-                        break;
-                    case "için":
-                    case "sayesinde":
-                    case "dolayı":
-                        added = ":cause";
-                        addedIndex = i;
-                        break;
-                }
-            }
-        }
+        String[] added = new String[1];
+        int addedIndex = getPreliminaryExtra(current, index, added);
         if (current.getParse().isCardinal() && index + 1 < sentence.wordCount()) {
             String next = ((AnnotatedWord) sentence.getWord(index + 1)).getParse().getWord().getName();
             if (isMonth(next)) {
@@ -246,14 +259,7 @@ public class RuleBasedConstructionAlgorithm extends AmrConstructionAlgorithm {
                 output.add(withTabs(tabCount + 1, onlyWord(((AnnotatedWord) sentence.getWord(index + 1)), index + 1) + ":month"));
                 done[index + 1] = true;
             } else {
-                if (!extraAdded.isEmpty()) {
-                    output.add(withTabs(tabCount, onlyWord(current, index) + extraAdded));
-                } else {
-                    output.add(withTabs(tabCount, onlyWord(current, index) + added));
-                    if (addedIndex != -1) {
-                        done[addedIndex] = true;
-                    }
-                }
+                addDefaultCase(done, tabCount, output, onlyWord(current, index), extraAdded, added[0], addedIndex);
             }
         } else {
             if (current.getParse().isProperNoun()) {
@@ -272,14 +278,7 @@ public class RuleBasedConstructionAlgorithm extends AmrConstructionAlgorithm {
                         if (!current.getParse().getRootPos().equals("VERB") && current.getParse().containsTag(MorphologicalTag.LOCATIVE)) {
                             output.add(withTabs(tabCount, wikiType) + ":location");
                         } else {
-                            if (!extraAdded.isEmpty()) {
-                                output.add(withTabs(tabCount, wikiType) + extraAdded);
-                            } else {
-                                output.add(withTabs(tabCount, wikiType) + added);
-                                if (addedIndex != -1) {
-                                    done[addedIndex] = true;
-                                }
-                            }
+                            addDefaultCase(done, tabCount, output, withTabs(tabCount, wikiType), extraAdded, added[0], addedIndex);
                         }
                     }
                 }
@@ -345,34 +344,28 @@ public class RuleBasedConstructionAlgorithm extends AmrConstructionAlgorithm {
                                             output.add(withTabs(tabCount + 1, current.getParse().getWord().getName() + ":value"));
                                         }
                                     } else {
-                                        if (new ArrayList<>(Arrays.asList("AMOD", "NMOD")).contains(relation)) {
-                                            output.add(withTabs(tabCount, currentWord) + ":mod");
-                                        } else {
-                                            if (relation.equals("NUMMOD")) {
+                                        switch (relation){
+                                            case "AMOD":
+                                            case "NMOD":
+                                                output.add(withTabs(tabCount, currentWord) + ":mod");
+                                                break;
+                                            case "NUMMOD":
                                                 output.add(withTabs(tabCount, currentWord) + ":quant");
-                                            } else {
-                                                if (relation.equals("ADVMOD")) {
-                                                    output.add(withTabs(tabCount, currentWord) + ":manner");
+                                                break;
+                                            case "ADVMOD":
+                                                output.add(withTabs(tabCount, currentWord) + ":manner");
+                                                break;
+                                            default:
+                                                if (!current.getParse().getRootPos().equals("VERB") && current.getParse().containsTag(MorphologicalTag.INSTRUMENTAL)) {
+                                                    output.add(withTabs(tabCount, currentWord) + ":instrument");
                                                 } else {
-                                                    if (!current.getParse().getRootPos().equals("VERB") && current.getParse().containsTag(MorphologicalTag.INSTRUMENTAL)) {
-                                                        output.add(withTabs(tabCount, currentWord) + ":instrument");
+                                                    if (!current.getParse().getRootPos().equals("VERB") && current.getParse().containsTag(MorphologicalTag.LOCATIVE)) {
+                                                        output.add(withTabs(tabCount, currentWord) + ":location");
                                                     } else {
-                                                        if (!current.getParse().getRootPos().equals("VERB") && current.getParse().containsTag(MorphologicalTag.LOCATIVE)) {
-                                                            output.add(withTabs(tabCount, currentWord) + ":location");
-                                                        } else {
-                                                            if (!extraAdded.isEmpty()) {
-                                                                output.add(withTabs(tabCount, currentWord) + extraAdded);
-                                                            } else {
-                                                                output.add(withTabs(tabCount, currentWord) + added);
-                                                                if (addedIndex != -1) {
-                                                                    done[addedIndex] = true;
-                                                                }
-                                                            }
-                                                            addDetails(tabCount, output, current, currentWordIndex);
-                                                        }
+                                                        addDefaultCase(done, tabCount, output, withTabs(tabCount, currentWord), extraAdded, added[0], addedIndex);
+                                                        addDetails(tabCount, output, current, currentWordIndex);
                                                     }
                                                 }
-                                            }
                                         }
                                     }
                                 }

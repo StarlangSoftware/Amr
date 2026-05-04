@@ -21,6 +21,14 @@ public abstract class AmrConstructionAlgorithm {
         }
     }
 
+    public String toString(AnnotatedSentence sentence){
+        StringBuilder result = new StringBuilder();
+        for (String item : constructExcelAmr(sentence)){
+            result.append(item).append("\n");
+        }
+        return result.toString();
+    }
+
     public void saveAmr(ArrayList<String> items, String fileName){
         int startX = 750, startY = 100;
         String[] lastParent = new String[50];
